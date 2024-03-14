@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { BleManager, Device } from 'react-native-ble-plx';
+import { BleManager } from 'react-native-ble-plx';
 
 
 function useBLE()
@@ -8,13 +8,31 @@ function useBLE()
 	const [allDevices, setAllDevices] = useState([]);
 	const [connectedDevice, setConnectedDevice] = useState(null);
 
+	const checkBluetoothEnabled = () => {
+		return new Promise((resolve, reject) => {
+			try {
+				bleManager.onStateChange((state) => {
+					if (state === 'PoweredOn') {
+						resolve(true); // Bluetooth is enabled
+					} else {
+						resolve(false); // Bluetooth is disabled or other state
+					}
+				}, true);
+			} catch (error) {
+				console.error('Error checking Bluetooth state:', error);
+				reject(error); // Reject the promise if an error occurs
+			}
+		});
+	};
+
+
 	const isDuplicateDevice = (devices, nextDevice) =>
 		devices.findIndex((device) => nextDevice.id === device.id) > -1;
 
 	const scanForPeripherals = () => {
 		bleManager.startDeviceScan(null, null, (error, device) => {
 			if (error) { console.log(error); }
-			if(device && device.name?.includes('LED'))
+			if(device && device.name?.includes('ESP'))
 			{
 				setAllDevices((prevState) => {
 					if(!isDuplicateDevice(prevState, device)) {
@@ -25,6 +43,7 @@ function useBLE()
 			}
 		});
 	};
+
 
 	const connectToDevice = async (device) => {
 		try {
@@ -52,6 +71,7 @@ function useBLE()
 		connectToDevice,
 		connectedDevice,
 		disconnectFromDevice,
+		checkBluetoothEnabled,
 	};
 }
 

@@ -1,0 +1,14 @@
+{
+    "search-device": "Otsi seadet",
+    "disconnect-device": "Ühenda lahti",
+    "continue-without": "Jätka ühendamata",
+    "choose-device": "Vali seade ühendamiseks",
+    "select-language": "Vali keel",
+    "designs": "Disainid",
+    "create-design": "Loo uus",
+    "my-designs": "Minu disainid",
+    "bluetooth-error-title": "Bluetooth välja lülitatud või uued ühendused keelatud",
+    "bluetooth-error-msg": "Bluetooth peab olema sisse lülitatud ja uued ühendused lubatud, et otsida ja ühendada seadmeid",
+    "settings": "Seaded",
+    "cancel": "Tühista"
+}

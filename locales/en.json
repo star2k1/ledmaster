@@ -1,0 +1,14 @@
+{
+    "search-device": "Look for a device",
+    "disconnect-device": "Disconnect",
+    "continue-without": "Continue without connecting",
+    "choose-device": "Tap on a device to connect",
+    "select-language": "Choose your language",
+    "designs": "Designs",
+    "create-design": "Create new",
+    "my-designs": "My designs",
+    "bluetooth-error-title": "Bluetooth turned off or new connections not allowed",
+    "bluetooth-error-msg": "Bluetooth needs to be turned on and new connections allowed to search and connect to devices",
+    "settings": "Settings",
+    "cancel": "Cancel"
+}

@@ -1,37 +1,56 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import * as Haptics from 'expo-haptics';
+import { router } from 'expo-router';
 import
 {
 	FlatList,
-	ListRenderItemInfo,
 	Modal,
 	SafeAreaView,
 	Text,
 	StyleSheet,
 	TouchableOpacity,
+	ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 const DeviceModalListItem = (props) => {
 	const { item, connectToPeripheral, closeModal } = props;
-
-	const connectAndCloseModal = useCallback(() => {
-		connectToPeripheral(item.item);
-		closeModal();
+	const [isLoading, setIsLoading] = useState(false);
+	const connectAndCloseModal = useCallback(async () => {
+		setIsLoading(true);
+		try {
+			await connectToPeripheral(item.item);
+			router.push('/(tabs)/presets');
+		} catch (error) {
+			console.error('Error connecting to peripheral:', error);
+		} finally {
+			closeModal();
+			setIsLoading(false); // Reset loading state
+		}
 	}, [closeModal, connectToPeripheral, item.item]);
 
 	return (
 		<TouchableOpacity
-			onPress={connectAndCloseModal}
-			style={modalStyle.ctaButton}
+			onPress={ () => { connectAndCloseModal(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
 		>
-			<Text style={modalStyle.ctaButtonText}>{item.item.name}</Text>
+			<LinearGradient
+				style={ modalStyle.ctaButton }
+				colors={['#0052D4','#4364F7', '#6FB1FC']}
+				start={{ x: 0, y: 0 }}
+				end={{ x:1.4, y: 0 }}
+			>
+				{isLoading ? ( <ActivityIndicator color='white' /> ) 
+					: (<Text style={modalStyle.ctaButtonText}>{item.item.name}</Text>)}
+				
+			</LinearGradient>
 		</TouchableOpacity>
 	);
 };
 
 const DeviceModal = (props) => {
 	const { devices, visible, connectToPeripheral, closeModal } = props;
-
+	const { t } = useTranslation();
 	const renderDeviceModalListItem = useCallback(
 		(item) => {
 			return (
@@ -60,7 +79,7 @@ const DeviceModal = (props) => {
 			>
 				<SafeAreaView style={modalStyle.modalTitle}>
 					<Text style={modalStyle.modalTitleText}>
-          Tap on a device to connect
+						{t('choose-device')}
 					</Text>
 					<FlatList
 						contentContainerStyle={modalStyle.modalFlatlistContiner}
@@ -79,7 +98,7 @@ const modalStyle = StyleSheet.create({
 	},
 	modalFlatlistContiner: {
 		flex: 1,
-		justifyContent: 'center',
+		marginTop: 60,
 	},
 	modalCellOutline: {
 		borderWidth: 1,
@@ -94,20 +113,19 @@ const modalStyle = StyleSheet.create({
 	},
 	modalTitleText: {
 		marginTop: 40,
-		fontSize: 30,
+		fontSize: 28,
 		fontWeight: 'bold',
 		marginHorizontal: 20,
 		textAlign: 'center',
 		color: 'white',
 	},
 	ctaButton: {
-		backgroundColor: '#FF6060',
 		justifyContent: 'center',
 		alignItems: 'center',
 		height: 50,
 		marginHorizontal: 20,
 		marginBottom: 5,
-		borderRadius: 14,
+		borderRadius: 12,
 	},
 	ctaButtonText: {
 		fontSize: 18,
