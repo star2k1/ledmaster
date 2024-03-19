@@ -1,24 +1,22 @@
 import React, { useState } from 'react';
 import { 
-	Alert,
 	View,
 	SafeAreaView,
 	useColorScheme,
 	StyleSheet,
 	Text,
 	TouchableOpacity,
-	Linking,
-	Platform
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import LinearGradient from 'react-native-linear-gradient';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import useBLE from '../components/useBLE';
 //import DeviceModal from '../components/DeviceConnectionModal';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import LanguageDialog from '../components/LanguageModal';
+import { useAppSelector, useAppDispatch } from '../state/store';
+import { disconnectFromDevice } from '../state/BluetoothLE/listener';
 
 const styles = StyleSheet.create({
 	text: {
@@ -60,45 +58,9 @@ const styles = StyleSheet.create({
 });
 
 const HomeScreen = () => {
-
 	
 	const { t } = useTranslation();
-
-	const {
-		connectedDevice,
-		disconnectFromDevice,
-		checkBluetoothEnabled,
-	} = useBLE();
-
-	const goToSettings = () =>
-		Platform.OS === 'ios'
-			? Linking.openURL('App-Prefs:Bluetooth')
-			: console.log('Failed to open settings');
-
-	const checkBtAndOpenConnections = async () => {
-		try {
-			const bluetoothState = await checkBluetoothEnabled();
-			if (bluetoothState) {
-				console.log('Bluetooth enabled');
-				router.push('/(settings)/connections');
-			}
-			else {
-				Alert.alert(t('bluetooth-error-title'), t('bluetooth-error-msg'), [
-					{
-						text: t('settings'),
-						onPress: () => { goToSettings(); }},
-					{
-						text: t('cancel'),
-						style: 'cancel',
-					},
-						
-				]);
-			}
-		}
-		catch (error) {
-			console.error('Error checking Bt', error);
-		}
-	};
+	const dispatch = useAppDispatch();
 
 	const [isDialogVisible, setIsDialogVisible] = useState(false);
 	const toggleDialog = () => {
@@ -108,6 +70,27 @@ const HomeScreen = () => {
 	const theme = useColorScheme();
 	const statusBarStyle = theme === 'dark' ? 'light-content' : 'dark-content';
 
+	const onWithoutConnectButtonTapped = () => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+		router.push('/(tabs)/presets');
+	};
+
+	const onDisconnectButtonTapped = () => {
+		dispatch(disconnectFromDevice(connectedDevice));
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+	};
+
+	const onConnectButtonTapped = () => {
+		router.push('/(settings)/connections');
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+	};
+
+	const onLanguageButtonTapped = () => {
+		toggleDialog(); 
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+	};
+	
+	const connectedDevice = useAppSelector(state => state.ble.connectedDevice);
 	return (
 		<LinearGradient
 			style={ styles.container }
@@ -125,50 +108,54 @@ const HomeScreen = () => {
 						<Text>GANGGANGGAN</Text>
 					</View>
 					<View>
-						<TouchableOpacity onPress={() => { toggleDialog(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);}}>
+						<TouchableOpacity onPress={onLanguageButtonTapped}>
 							<Ionicons style={{ justifyContent: 'center' }} name="language" size={30} color="white" />
 						</TouchableOpacity>
 					</View>
 				</View>
 				<View style= {{ flex: 1 }}>
-					<TouchableOpacity onPress={() => {
-						connectedDevice ? disconnectFromDevice() : checkBtAndOpenConnections();
-						Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-					}}>
-						<LinearGradient
-							style={ styles.btnConnect }
-							colors={['#0052D4','#4364F7', '#6FB1FC']}
-							start={{ x: 0, y: 0 }}
-							end={{ x:1.4, y: 0 }}
-						>
-							<Text style={styles.textBtn}>{connectedDevice ? t('disconnect-device') : t('search-device')}
-								<Text>  </Text>
-								<FontAwesome style={[styles.icon, { marginLeft: 20 }]} name='bluetooth-b' size={18} color='white'/>
-							</Text>
+					{connectedDevice?.id ? (
+						<TouchableOpacity onPress={onDisconnectButtonTapped}>
+							<LinearGradient
+								style={ styles.btnConnect }
+								colors={['#0052D4','#4364F7', '#6FB1FC']}
+								start={{ x: 0, y: 0 }}
+								end={{ x:1.4, y: 0 }}
+							>
+								<Text style={styles.textBtn}>{t('disconnect-device')}
+									<Text>  </Text>
+									<FontAwesome style={[styles.icon, { marginLeft: 20 }]} name='bluetooth-b' size={18} color='white'/>
+								</Text>
+							</LinearGradient>
+						</TouchableOpacity>
+					) : (
+						<TouchableOpacity onPress={onConnectButtonTapped}>
+							<LinearGradient
+								style={ styles.btnConnect }
+								colors={['#0052D4','#4364F7', '#6FB1FC']}
+								start={{ x: 0, y: 0 }}
+								end={{ x:1.4, y: 0 }}
+							>
+								<Text style={styles.textBtn}>{t('search-device')}
+									<Text>  </Text>
+									<FontAwesome style={[styles.icon, { marginLeft: 20 }]} name='bluetooth-b' size={18} color='white'/>
+								</Text>
 						
-						</LinearGradient>
-					</TouchableOpacity>
+							</LinearGradient>
+						</TouchableOpacity>
+					)}
 				</View>
 				<View style={{ marginBottom: 20, alignItems: 'center' }}>
-					<TouchableOpacity onPress={() => {
-						Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-						router.push('/(tabs)/presets');}}>
+					<TouchableOpacity onPress={onWithoutConnectButtonTapped}>
 						<Text style={styles.normalText}>{ t('continue-without') }</Text>
 					</TouchableOpacity>
 				</View>
 			</SafeAreaView>
 			<StatusBar barStyle={statusBarStyle} />
-			{/* <DeviceModal
-				closeModal={hideModal}
-				visible={isModalVisible}
-				connectToPeripheral={connectToDevice}
-				devices={allDevices}
-			/> */}
 			<LanguageDialog
 				visible={isDialogVisible}
 				onClose={toggleDialog}
 			/>
-
 		</LinearGradient>
 	);
 };
