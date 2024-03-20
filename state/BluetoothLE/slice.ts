@@ -6,6 +6,7 @@ interface BluetoothState {
     currentData: string[];
     connectedDevice: DeviceReference | null;
     retrievedData?: string | null;
+    bluetoothEnabled: boolean | null;
 }
 
 const initialState: BluetoothState = {
@@ -13,6 +14,7 @@ const initialState: BluetoothState = {
     currentData: [],
     connectedDevice: null,
     retrievedData: undefined,
+    bluetoothEnabled: null,
 };
 
 const isDuplicateDevice = (
@@ -24,6 +26,7 @@ export type DevicesAction = PayloadAction<DeviceReference>;
 
 export const startScanning = createAction('bleState/startScanning');
 export const startListening = createAction('bleState/startListening');
+export const startCheckingState = createAction('bleState/startCheckingState');
 
 const bleState = createSlice({
     name: 'bleState',
@@ -39,10 +42,13 @@ const bleState = createSlice({
         },
         setRetrievedData: (state, action: PayloadAction<string | null | undefined>) => {
             state.retrievedData = action.payload;
-        }
+        },
+        setBluetoothState: (state, action: PayloadAction<boolean | null>) => {
+            state.bluetoothEnabled = action.payload;
+        },
     },
 });
 
-export const { setDevice, setConnectedDevice, setRetrievedData } = bleState.actions;
+export const { setDevice, setConnectedDevice, setRetrievedData, setBluetoothState } = bleState.actions;
 
 export default bleState.reducer;

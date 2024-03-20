@@ -20,7 +20,7 @@ export default function _layout() {
 					
 					}} />
 					<Stack.Screen name="(settings)/connections" options={{
-						headerTransparent: true
+						headerTransparent: true,
 					}} />
 				</Stack>
 			</ThemeProvider>

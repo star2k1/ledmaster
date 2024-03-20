@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Alert, Platform, Linking } from 'react-native';
+import { View, Alert, Platform, Linking, AppRegistry } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import
 {
 	FlatList,
@@ -14,29 +14,47 @@ import
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useAppDispatch, useAppSelector } from '../../state/store';
-import { startScanning } from '../../state/BluetoothLE/slice';
+import { startCheckingState, startScanning } from '../../state/BluetoothLE/slice';
 import { connectToDevice } from '../../state/BluetoothLE/listener';
 
 const ConnectionScreen = () => {
-	const [isLoading, setIsLoading] = useState(false);
-	
-	// const connectAndCloseTab = useCallback(async () => {
-	// 	setIsLoading(true);
-	// 	try {
-	// 		await connectToPeripheral(item.item);
-	// 		router.push('/(tabs)/presets');
-	// 	} catch (error) {
-	// 		console.error('Error connecting to peripheral:', error);
-	// 	} finally {
-	// 		setIsLoading(false); // Reset loading state
-	// 	}
-	// }, [connectToPeripheral, item.item]);
 	const dispatch = useAppDispatch();
 	const discoveredDevices = useAppSelector((state) => state.ble.allDevices);
+	const bluetoothState = useAppSelector(state => state.ble.bluetoothEnabled);
+
+	// useEffect(() => {
+	// 	if(!bluetoothState) createAlert();
+	// }, [bluetoothState]);
+
+	useFocusEffect(
+		React.useCallback(() => {
+			if(!bluetoothState) createAlert();
+		}, [bluetoothState])
+	);
 
 	useEffect(() => {
+		dispatch(startCheckingState());
 		dispatch(startScanning());
 	}, []);
+
+	// useFocusEffect(
+	// 	React.useCallback(() => {
+	// 		console.log('Screen refocused');
+	// 		enableBluetoothOrScan();
+	// 		return () => {
+	// 			console.log('Screen unfocused');
+	// 		};
+	// 	}, [])
+	// );
+
+	// const enableBluetoothOrScan = () => {
+	// 	if (bluetoothState) {
+	// 		console.log(bluetoothState);
+	// 		dispatch(startScanning());
+	// 	} else {
+	// 		createAlert();
+	// 	}
+	// };
 
 	const onDeviceSelected = (deviceId) => {
 		dispatch(connectToDevice(deviceId));
@@ -45,8 +63,6 @@ const ConnectionScreen = () => {
 	};
 
 	const { t } = useTranslation();
-
-	const [isBlueEnabled, setIsBlueEnabled] = useState(true);
 
 	const goToSettings = () =>
 		Platform.OS === 'ios'
@@ -57,7 +73,7 @@ const ConnectionScreen = () => {
 		Alert.alert(t('bluetooth-error-title'), t('bluetooth-error-msg'), [
 			{
 				text: t('settings'),
-				onPress: () => { goToSettings(); }
+				onPress: () => { goToSettings(); router.push('/'); }
 			},
 			{
 				text: t('cancel'),
@@ -81,7 +97,7 @@ const ConnectionScreen = () => {
 						{t('choose-device')}
 					</Text>
 					{
-						isBlueEnabled ? (
+						bluetoothState ? (
 							<FlatList
 								contentContainerStyle={styles.flatlistContiner}
 								data={discoveredDevices}
@@ -97,18 +113,12 @@ const ConnectionScreen = () => {
 												start={{ x: 0, y: 0 }}
 												end={{ x:1.4, y: 0 }}
 											>
-												{isLoading ? (
-													<ActivityIndicator color='white' />
-												) : (
-													<Text style={styles.ctaButtonText}>{item.name}</Text>
-												)}
+												<Text style={styles.ctaButtonText}>{item.name}</Text>
 											</LinearGradient>
 										</TouchableOpacity>
 									);
 								}
-								
-								}
-							/>
+								}/>
 						) : (
 							<View style={{ marginTop: 50}}>
 								<ActivityIndicator size='large' color='white' />

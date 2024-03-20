@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
 	View,
 	SafeAreaView,
@@ -70,6 +70,8 @@ const HomeScreen = () => {
 	const theme = useColorScheme();
 	const statusBarStyle = theme === 'dark' ? 'light-content' : 'dark-content';
 
+	const connectedDevice = useAppSelector(state => state.ble.connectedDevice);
+
 	const onWithoutConnectButtonTapped = () => {
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 		router.push('/(tabs)/presets');
@@ -90,7 +92,6 @@ const HomeScreen = () => {
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 	};
 	
-	const connectedDevice = useAppSelector(state => state.ble.connectedDevice);
 	return (
 		<LinearGradient
 			style={ styles.container }

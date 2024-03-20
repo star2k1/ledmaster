@@ -20,6 +20,27 @@ class BluetoothLeManager {
 		this.device = null;
 	}
 
+	// getBluetoothState = async (): Promise<boolean> => {
+	// 	return new Promise<boolean>((resolve, reject) => {
+	// 		const subscription = this.bleManager.onStateChange(state => {
+	// 			if (state === 'PoweredOn') {
+	// 				resolve(true);
+	// 				subscription.remove();
+	// 			}
+	// 			else {
+	// 				resolve(false);
+	// 				subscription.remove();
+	// 			}
+	// 		}, true);
+	// 	});
+	// };
+
+	getBluetoothState(callback: (state: string) => void) {
+		this.bleManager.onStateChange((state) => {
+			callback(state);
+		}, true);
+	};
+
 	scanForPeripherals = (onDeviceFound: (deviceSummary: DeviceReference) => void) => {
 		this.bleManager.startDeviceScan(null, null, (_, scannedDevice) => {
 			onDeviceFound({

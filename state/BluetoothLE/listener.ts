@@ -1,5 +1,13 @@
 import { createAsyncThunk, createListenerMiddleware } from '@reduxjs/toolkit';
-import { setConnectedDevice, setDevice, startScanning, setRetrievedData, startListening } from './slice';
+import {
+    setConnectedDevice,
+    setDevice,
+    startScanning,
+    setRetrievedData,
+    startListening,
+    startCheckingState,
+    setBluetoothState
+} from './slice';
 
 import bluetoothLeManager, { DeviceReference } from './BluetoothLeManager';
 
@@ -20,14 +28,9 @@ export const disconnectFromDevice = createAsyncThunk(
     "bleThunk/disconnectFromDevice",
     async (ref: DeviceReference, thunkApi) => {
         if(ref.id) {
-            try {
-                const closedDevice = await bluetoothLeManager.disconnectFromPeripheral(ref.id);
-                thunkApi.dispatch(setConnectedDevice(null));
-                return closedDevice;
-            } catch (e) {
-                console.error(e);
-                throw e;
-            }
+            const closedDevice = await bluetoothLeManager.disconnectFromPeripheral(ref.id);
+            thunkApi.dispatch(setConnectedDevice(null));
+            return closedDevice;
         }
     }
 );
@@ -46,6 +49,19 @@ export const sendDataToDevice = createAsyncThunk(
         await bluetoothLeManager.sendData(data);
     }
 );
+
+bleMiddleware.startListening({
+    actionCreator: startCheckingState,
+    effect: (_, listenerApi) => {
+        bluetoothLeManager.getBluetoothState((state) => {
+            if (state === 'PoweredOn'){
+                listenerApi.dispatch(setBluetoothState(true));
+            } else {
+                listenerApi.dispatch(setBluetoothState(false));
+            }
+        });
+    },
+});
 
 bleMiddleware.startListening({
     actionCreator: startScanning,

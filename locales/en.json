@@ -7,8 +7,8 @@
     "designs": "Designs",
     "create-design": "Create new",
     "my-designs": "My designs",
-    "bluetooth-error-title": "Bluetooth turned off or new connections not allowed",
-    "bluetooth-error-msg": "Bluetooth needs to be turned on and new connections allowed to search and connect to devices",
+    "bluetooth-error-title": "\"Ledmaster\" needs Bluetooth",
+    "bluetooth-error-msg": "Please turn on Bluetooth and allow new connections to search and connect to devices",
     "settings": "Settings",
     "cancel": "Cancel"
 }
