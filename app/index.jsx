@@ -11,12 +11,14 @@ import { StatusBar } from 'expo-status-bar';
 import LinearGradient from 'react-native-linear-gradient';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-//import DeviceModal from '../components/DeviceConnectionModal';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import LanguageDialog from '../components/LanguageModal';
 import { useAppSelector, useAppDispatch } from '../state/store';
 import { disconnectFromDevice } from '../state/BluetoothLE/listener';
+import { startCheckingState } from '../state/BluetoothLE/slice';
+import MaskedView from '@react-native-masked-view/masked-view';
+
 
 const styles = StyleSheet.create({
 	text: {
@@ -24,28 +26,57 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1,
+	},
+	contentContainer: {
 		alignItems: 'center',
-		justifyContent: 'center',
+		flex: 1,
+		justifyContent: 'center'
+	},
+	titleContainer: {
+		alignItems: 'center',
+		marginBottom: 50,
+	},
+	headerContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingHorizontal: 15,
+	},
+	footerContainer: {
+		alignItems: 'center',
+		justifyContent: 'flex-end',
+	},
+	logo: {
+		fontSize: 32,
+		backgroundColor: 'transparent',
+		fontFamily: 'Inter-Black',
 	},
 	title: {
-		fontSize: 34,
-		fontWeight: '900',
-		color: '#fff', // Title color can be white
-		//fontFamily: 'Inter', // Inter font family
-		textAlign: 'left'
+		fontSize: 42,
+		fontFamily: 'Inter-ExtraBold',
+		backgroundColor: 'transparent',
+		marginBottom: 15,
+		textAlign: 'center',
+	},
+	secondTitle: {
+		fontSize: 18,
+		color: '#fff',
+		marginBottom: 10,
+		textAlign: 'center',
+		fontFamily: 'Inter-Light',
 	},
 	normalText: {
 		fontSize: 18,
-		fontWeight: '400',
+		fontWeight: '500',
 		color: '#fff',
 		marginTop: 10,
+		fontFamily: 'Inter-Regular'
 	},
 	textBtn: {
 		color: '#fff', // Text color can be white
-		fontFamily: 'Inter', // Inter font family
+		fontFamily: 'Inter-Regular', // Inter font family
 		fontSize: 18,
 		textAlign: 'center',
-		fontWeight: '400',
 	},
 	btnConnect: {
 		backgroundColor: 'rgba(0, 0, 255, 0.9)',
@@ -54,6 +85,8 @@ const styles = StyleSheet.create({
 		paddingTop: 12,
 		paddingBottom: 12,
 		borderRadius: 20,
+		marginTop: 20,
+		alignSelf: 'center',
 	}
 });
 
@@ -61,6 +94,10 @@ const HomeScreen = () => {
 	
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		dispatch(startCheckingState());
+	}, []);
 
 	const [isDialogVisible, setIsDialogVisible] = useState(false);
 	const toggleDialog = () => {
@@ -93,71 +130,94 @@ const HomeScreen = () => {
 	};
 	
 	return (
-		<LinearGradient
-			style={ styles.container }
-			colors={['black', 'darkblue', 'darkblue']}
-			start={{ x: 0, y: 0 }}
-			end={{ x: 4, y: 3 }}
-		>
-			<SafeAreaView style={styles.container}>
-				<View style={{ flex: 1, flexDirection: 'row'}}>
-					
+		<SafeAreaView style={ styles.container }>
+			<LinearGradient
+				style={{ ...StyleSheet.absoluteFillObject }}
+				colors={['rgba(0,0,30,1)','midnightblue','navy','rgba(0,0,50,1)']}
+			/>
+			<View style={styles.headerContainer}>
+				<MaskedView 
+					maskElement={<Text style={styles.logo}>BTLED</Text>}>
+					<LinearGradient
+						start={{x: 0, y: 0}}
+						end={{x: 0.9, y: 0.5}}
+						colors={['#6a61ff', '#0000ff','#00d4ff']}
+					>
+						<Text style={{...styles.logo, opacity: 0}}>BTLED</Text>
+					</LinearGradient>
+				</MaskedView>
+				<TouchableOpacity onPress={onLanguageButtonTapped}>
+					<Ionicons name="language" size={30} color="white" />
+				</TouchableOpacity>
+			</View>
+			<View style = {styles.contentContainer}>
+				<View style={styles.titleContainer}>
+					<MaskedView maskElement={<Text style={styles.title}>{ t('welcome') }</Text>}>
+						<LinearGradient
+							start={{x: 0, y: 0}}
+							end={{x: 1, y: 1}}
+							colors={['#fc00ff','#00dbde']}
+						>
+							<Text style={{...styles.title, opacity: 0}}>{ t('welcome') }</Text>
+						</LinearGradient>
+					</MaskedView>
 					<View>
-						<Text style={styles.title}>LEDMASTER</Text>
-					</View>
-					<View>
-						<Text>GANGGANGGAN</Text>
-					</View>
-					<View>
-						<TouchableOpacity onPress={onLanguageButtonTapped}>
-							<Ionicons style={{ justifyContent: 'center' }} name="language" size={30} color="white" />
-						</TouchableOpacity>
+						<Text style={styles.secondTitle}>
+							{ connectedDevice?.id ? '' : t('begin') }</Text>
 					</View>
 				</View>
-				<View style= {{ flex: 1 }}>
-					{connectedDevice?.id ? (
-						<TouchableOpacity onPress={onDisconnectButtonTapped}>
-							<LinearGradient
-								style={ styles.btnConnect }
-								colors={['#0052D4','#4364F7', '#6FB1FC']}
-								start={{ x: 0, y: 0 }}
-								end={{ x:1.4, y: 0 }}
-							>
-								<Text style={styles.textBtn}>{t('disconnect-device')}
-									<Text>  </Text>
-									<FontAwesome style={[styles.icon, { marginLeft: 20 }]} name='bluetooth-b' size={18} color='white'/>
-								</Text>
-							</LinearGradient>
-						</TouchableOpacity>
-					) : (
-						<TouchableOpacity onPress={onConnectButtonTapped}>
-							<LinearGradient
-								style={ styles.btnConnect }
-								colors={['#0052D4','#4364F7', '#6FB1FC']}
-								start={{ x: 0, y: 0 }}
-								end={{ x:1.4, y: 0 }}
-							>
-								<Text style={styles.textBtn}>{t('search-device')}
-									<Text>  </Text>
-									<FontAwesome style={[styles.icon, { marginLeft: 20 }]} name='bluetooth-b' size={18} color='white'/>
-								</Text>
+				<View>
+					{/* <Text style={styles.secondTitle}>{ t('begin') }</Text> */}
+					<View>
+						{connectedDevice?.id ? (
+							<TouchableOpacity onPress={onDisconnectButtonTapped}>
+								<LinearGradient
+									style={ styles.btnConnect }
+									colors={['#7b4397','#dc2430']}
+									start={{ x:0, y: 0 }}
+									end={{ x:0.7, y: 0 }}
+								>
+									<Text style={styles.textBtn}>{t('disconnect-device')}
+										<Text>  </Text>
+										<FontAwesome style={[styles.icon, { marginLeft: 20 }]} name='bluetooth-b' size={18} color='white'/>
+									</Text>
+								</LinearGradient>
+							</TouchableOpacity>
+						) : (
+							<TouchableOpacity onPress={onConnectButtonTapped}>
+								<LinearGradient
+									style={ styles.btnConnect }
+									colors={['#2b32b2', '#1488cc']}
+									start={{ x: 0, y:0 }}
+									end={{ x:1, y: 0 }}
+								>
+									<Text style={styles.textBtn}>{t('search-device')}
+										<Text>  </Text>
+										<FontAwesome style={[styles.icon, { marginLeft: 20 }]} name='bluetooth-b' size={18} color='white'/>
+									</Text>
 						
-							</LinearGradient>
-						</TouchableOpacity>
-					)}
+								</LinearGradient>
+							</TouchableOpacity>
+						)}
+					</View>
 				</View>
+			</View>
+			<View style={styles.footerContainer}>
+				<View><Text style={styles.secondTitle}>{ t('or') }</Text></View>
 				<View style={{ marginBottom: 20, alignItems: 'center' }}>
 					<TouchableOpacity onPress={onWithoutConnectButtonTapped}>
-						<Text style={styles.normalText}>{ t('continue-without') }</Text>
+						<Text style={styles.normalText}>{ 
+							connectedDevice?.id ? t('continue-to-app') : t('continue-without') }
+						</Text>
 					</TouchableOpacity>
 				</View>
-			</SafeAreaView>
+			</View>
 			<StatusBar barStyle={statusBarStyle} />
 			<LanguageDialog
 				visible={isDialogVisible}
 				onClose={toggleDialog}
 			/>
-		</LinearGradient>
+		</SafeAreaView>
 	);
 };
 

@@ -6,9 +6,9 @@ export interface DeviceReference {
 	id?: string;
 }
 
-const SERVICE_UUID = '0000FFF0-0000-1000-8000-00805F9B34FB';
-const CHARACTERISTIC_NOTIFY_UUID = '6E400001-B5A3-F393-E0A9-E50E23DCCA9E';
-const CHARACTERISTIC_WRITE_UUID = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E';
+const SERVICE_UUID = '1848';
+const CHARACTERISTIC_NOTIFY_UUID = '2BE2';
+const CHARACTERISTIC_WRITE_UUID = '2BFD';
 
 class BluetoothLeManager {
 	bleManager: BleManager;
@@ -19,21 +19,6 @@ class BluetoothLeManager {
 		this.bleManager = new BleManager();
 		this.device = null;
 	}
-
-	// getBluetoothState = async (): Promise<boolean> => {
-	// 	return new Promise<boolean>((resolve, reject) => {
-	// 		const subscription = this.bleManager.onStateChange(state => {
-	// 			if (state === 'PoweredOn') {
-	// 				resolve(true);
-	// 				subscription.remove();
-	// 			}
-	// 			else {
-	// 				resolve(false);
-	// 				subscription.remove();
-	// 			}
-	// 		}, true);
-	// 	});
-	// };
 
 	getBluetoothState(callback: (state: string) => void) {
 		this.bleManager.onStateChange((state) => {

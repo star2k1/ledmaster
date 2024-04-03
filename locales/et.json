@@ -1,14 +1,23 @@
 {
     "search-device": "Otsi seadet",
+    "connect-device": "Ühenda",
     "disconnect-device": "Ühenda lahti",
     "continue-without": "Jätka ühendamata",
-    "choose-device": "Vali seade ühendamiseks",
+    "continue-to-app": "Mine rakendusse",
+    "choose-device": "Saadaolevad seadmed",
     "select-language": "Vali keel",
-    "designs": "Disainid",
+    "designs": "Kujundused",
     "create-design": "Loo uus",
-    "my-designs": "Minu disainid",
-    "bluetooth-error-title": "\"Ledmaster\" vajab ligipääsu Bluetoothile",
+    "my-designs": "Minu kujundused",
+    "bluetooth-error-title": "\"BTLED\" vajab ligipääsu Bluetoothile",
     "bluetooth-error-msg": "Palun lülita Bluetooth sisse ja luba uued ühendused, et leida ja ühendada seadmeid",
     "settings": "Seaded",
-    "cancel": "Tühista"
+    "devices": "Seadmed",
+    "about": "Info",
+    "cancel": "Tühista",
+    "welcome": "Tere tulemast!",
+    "begin": "Lisa seade, et alustada",
+    "or": "või",
+    "language": "Keel",
+    "text": "Tekst"
 }

@@ -14,13 +14,9 @@ export default function _layout() {
 						headerShown: false,
 						animation: 'fade'
 					}}/>
-					<Stack.Screen name="(tabs)" options={{
-						headerTransparent: true,
+					<Stack.Screen name="(drawer)" options={{
+						headerShown: false,
 						gestureEnabled: false
-					
-					}} />
-					<Stack.Screen name="(settings)/connections" options={{
-						headerTransparent: true,
 					}} />
 				</Stack>
 			</ThemeProvider>

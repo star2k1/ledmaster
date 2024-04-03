@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, SafeAreaView, Text, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import MatrixGrid from '../../components/CurrentMatrix';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 const styles = StyleSheet.create({
 	container: {
@@ -9,43 +9,34 @@ const styles = StyleSheet.create({
 		flexDirection: 'column',
 		alignItems: 'center',
 		justifyContent: 'flex-start',
+		marginTop: 10,
 	},
 	text: {
 		color: 'white',
 		marginTop: 225,
+		fontFamily: 'Inter-Bold',
 		fontSize: 25,
-		fontWeight: '600'
 	},
 	gridContainer: {
 		flex: 1
 	}
 });
 
-const DesignScreen = () => {
-	const rows = 16;
-	const columns = 64;
+const TextScreen = () => {
+	const bottomTabBarHeight = useBottomTabBarHeight();
+	
 	return(
 		<LinearGradient
-			style={ styles.container }
-			colors={['darkblue', 'black', 'black']}
-			start={{ x: 0, y: 0.3 }}
-			end={{ x: 0.2, y: 1 }}
+			style={{...StyleSheet.absoluteFill}}
+			colors={['midnightblue','royalblue', 'midnightblue']}
 		>
-
-		
-			<SafeAreaView style={ styles.container }>
+			<SafeAreaView style={[ styles.container, { paddingBottom: bottomTabBarHeight }, ]}>
 				<View>
-
-                
-					<MatrixGrid 
-						rows={rows}
-						columns={columns}
-					/>
 				</View>
-				<Text style={styles.text}>Loo uus</Text>
+				<Text style={styles.text}>Tekst</Text>
 			</SafeAreaView>
 		</LinearGradient>
 	);
 };
 
-export default DesignScreen;
+export default TextScreen;

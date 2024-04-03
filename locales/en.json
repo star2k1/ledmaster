@@ -1,14 +1,23 @@
 {
     "search-device": "Look for a device",
+    "connect-device": "Connect",
     "disconnect-device": "Disconnect",
     "continue-without": "Continue without connecting",
-    "choose-device": "Tap on a device to connect",
+    "continue-to-app": "Continue to app",
+    "choose-device": "Available devices",
     "select-language": "Choose your language",
-    "designs": "Designs",
+    "designs": "Presets",
     "create-design": "Create new",
     "my-designs": "My designs",
-    "bluetooth-error-title": "\"Ledmaster\" needs Bluetooth",
+    "bluetooth-error-title": "\"BTLED\" needs Bluetooth",
     "bluetooth-error-msg": "Please turn on Bluetooth and allow new connections to search and connect to devices",
     "settings": "Settings",
-    "cancel": "Cancel"
+    "devices": "Devices",
+    "about": "About",
+    "cancel": "Cancel",
+    "welcome": "Welcome!",
+    "begin": "Add a device to get started",
+    "or": "or",
+    "language": "Language",
+    "text": "Text"
 }

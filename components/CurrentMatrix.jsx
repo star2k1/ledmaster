@@ -40,7 +40,8 @@ const styles = StyleSheet.create({
 		shadowColor: 'cyan', // Set shadow color to white
 		shadowOffset: { width: 0, height: 0 },
 		shadowOpacity: 1,
-		shadowRadius: 10, // Adjust the shadow radius for the desired glow effect
+		shadowRadius: 5, // Adjust the shadow radius for the desired glow effect
+		flexShrink: 1,
 	},
 	gridContainer: {
 		flexDirection: 'column', // Arrange rows vertically

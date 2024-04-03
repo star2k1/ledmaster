@@ -1,4 +1,4 @@
-rootProject.name = 'ledmaster'
+rootProject.name = 'BLED'
 
 dependencyResolutionManagement {
   versionCatalogs {
