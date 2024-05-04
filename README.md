@@ -33,7 +33,7 @@ Prerequisites:
     - BLEDevice
     - BLE2902
 
-1. Clone esp repository into VSCode
+1. Clone controller repository into VSCode
 2. Compile and upload the code to the ESP32 using PlatformIO
     
 ## License
