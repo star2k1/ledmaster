@@ -1,11 +1,11 @@
 
 # BLE controlled LED matrix ESP32
 
-BLE controlled LED matrix is project that aims to create an open source application to control a LED matrix over Bluetooth Low Energy. 
+BLE controlled LED matrix is project that aims to create an open source application to control various LED matrices over Bluetooth Low Energy. 
 
 This is the branch that contains ESP32 code for the BLE controlled LED matrix repository.
 
-Currently the application supports WS2812B 8x32 LED Matrix. Support for other matrices will be added later.
+Currently the application supports only WS2812B 8x32 LED Matrix. Support for other matrices will be added later.
 
 Code is written for the ESP32 Arduino platform using PlatformIO VSCode extension.
 
