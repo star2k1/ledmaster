@@ -1,31 +1,37 @@
-#include <Preferences.h>
+#include "memory_fun.h"
 #include <BLEDevice.h>
 #include <BLE2902.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_NeoPixel.h>
 #include "atawi8c.h"
+#include <vector>
 #ifndef PSTR
  #define PSTR // Make Arduino Due happy
 #endif
 
 ////////////////////////////// LED Matrix defines //////////////////////////////
+
 #define MATRIX_HEIGHT 8
 #define MATRIX_WIDTH 32
 #define NUM_LEDS MATRIX_HEIGHT*MATRIX_WIDTH
+#define CHAR_WIDTH 6
 #define DESIGN_LENGTH 6
 #define MATRIX_PIN 14
 #define RGB_PIN 38
-#define BRIGHTNESS 15
-#define MAX_BRIGHTNESS 30 // 256 leds, 1 LED 0.06A , 
+#define MAX_BRIGHTNESS 30 // 50 is maximum for a 3A power supply for 256 LEDs
+#define BRIGHTNESS MAX_BRIGHTNESS/2
+#define MAX_FRAMES 100
 
 ////////////////////////////// BLE defines //////////////////////////////
-#define SERVICE_UUID "1848"
+
+#define SERVICE_UUID "1848"   // Media Control Service
 #define SETUP_CHARACTERISTIC_UUID "6cf32036-9765-4a72-9bb7-74555500b000"  // Used for brightness, speed and state of LED matrix
 #define TEXT_CHARACTERISTIC_UUID "6cf32036-9765-4a72-9bb7-74555500b001" // Used to upload text
-#define DESIGN_CHARACTERISTIC_UUID "6cf32036-9765-4a72-9bb7-74555500b002" // Used to upload bitmaps
+#define DESIGN_CHARACTERISTIC_UUID "6cf32036-9765-4a72-9bb7-74555500b002" // Used to upload bitmaps and animations
 
 ////////////////////////////// Classes and their functions //////////////////////////////
+
 /* Class to encapsulate BLE server (ESP32) callback functions */ 
 class MyServerCallbacks : public BLEServerCallbacks {
   /* Sets connected device to true */
@@ -53,12 +59,23 @@ class MySetupCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pSetupCharacteristic);
 };
 
-/* Class that contains animation functions */
+/* Class that contains animation specific functions */
 class MyAnimations {
-  
+  /* Switches between RED and BLUE color to create a police effect */
+  void policeCon();
 };
 
 ////////////////////////////// Function prototypes //////////////////////////////
+
+/* Initializes the onboard RGB led*/
+void initOnboardLed();
+
+/* Initializes the LED matrix */
+void initMatrix();
+
+/* Initializes the BLE server */
+void initBle();
+
 /* Parses RGB short hex format color to RGB565 color value */
 uint16_t parseShortHexColor(String colorStr);
 
@@ -85,9 +102,6 @@ void turnMatrixOn();
 
 /* Calls stringToBitmap for as many frames as needed to play animation on matrix */
 void playAnimation();
-
-/* Switches between RED and BLUE color to create a police effect */
-void policeCon();
 
 /* Prints info about items in ESP32 preferences storage */
 void printInfo();
