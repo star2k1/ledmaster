@@ -11,19 +11,19 @@ import deviceReducer from './Device/deviceSlice';
 const appPersistConfig = {
     key:'root',
     storage: storage,
-    whitelist: ['matrix'],
-    stateReconciler: autoMergeLevel2
+    stateReconciler: autoMergeLevel2,
+    whitelist: ['matrix']
 };
 
-const blePersistConfig = {
-    key:'ble',
+const matrixPersistConfig = {
+    key:'matrix',
     storage: storage,
-    whitelist: ['allDevices']
+    blacklist: ['color']
 };
 
 const appReducer = combineReducers({
-    ble: persistReducer(blePersistConfig, bleReducer),
-    matrix: matrixReducer,
+    ble: bleReducer,
+    matrix: persistReducer(matrixPersistConfig, matrixReducer),
     device: deviceReducer
 });
 

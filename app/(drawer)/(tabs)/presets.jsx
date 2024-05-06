@@ -69,12 +69,12 @@ const PresetScreen = () => {
 
 	return(
 		<ScreenTemplate>
-			<SafeAreaView style={[ styles.container, { paddingBottom: bottomTabBarHeight }, ]}>
+			<View style={[ styles.container, { paddingBottom: bottomTabBarHeight }, ]}>
 				<View style={styles.headerContainer}>
 					<MatrixGrid />
 				</View>
 				<Text style={styles.text}>{ designs ?? 'Siin on eelloodud disainid' }</Text>
-			</SafeAreaView>
+			</View>
 		</ScreenTemplate>
 	);
 };

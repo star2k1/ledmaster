@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { SafeAreaView, Text, StyleSheet View } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 import MatrixGrid from '../../../components/CurrentMatrix';
 import { useAppDispatch, useAppSelector } from '../../../state/store';
 import { startListening } from '../../../state/BluetoothLE/bleSlice';
@@ -62,12 +62,12 @@ const AnimationScreen = () => {
 
 	return(
 		<ScreenTemplate>
-			<SafeAreaView style={[ styles.container, { paddingBottom: bottomTabBarHeight }, ]}>
+			<View style={[ styles.container, { paddingBottom: bottomTabBarHeight }, ]}>
 				<View style={styles.headerContainer}>
 					<MatrixGrid />
 				</View>
 				<Text style={styles.text}>{ designs ?? 'Siin on eelloodud disainid' }</Text>
-			</SafeAreaView>
+			</View>
 		</ScreenTemplate>
 	);
 };

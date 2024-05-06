@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
@@ -12,11 +12,21 @@ import
 	Modal
 } from 'react-native';
 import ColorPicker, { Preview, Panel3, BrightnessSlider } from 'reanimated-color-picker';
+import { useAppSelector } from '../state/store';
 
 const ColorPickerModal = ({ visible, onClose, onSelectColor }) => {
 	const { t } = useTranslation();
+	const storedColor = useAppSelector(state => state.matrix.color);
+	const [selectedColor, setSelectedColor] = useState(storedColor);
+	const handleColorSelect = (color) => {
+		setSelectedColor(color); // Store the selected color locally
+	};
+	const handleSubmit = () => {
+		onClose();
+		onSelectColor(selectedColor);
+	};
 	return (
-		<Modal animationType="fade" visible={visible} transparent onRequestClose={onClose} onOrientationChange={'portrait'}>
+		<Modal animationType="fade" visible={visible} transparent onRequestClose={onClose}>
 			<SafeAreaView style={styles.container}>
 				<BlurView intensity={20} style={styles.overlay}>
 					<TouchableOpacity 
@@ -28,35 +38,34 @@ const ColorPickerModal = ({ visible, onClose, onSelectColor }) => {
 				<BlurView intensity={40} style={styles.dialogContainer}>
 					<Text style={styles.titleText}>{t('choose-color')}</Text>
 					<View style={styles.bottomSeparator}></View>
-					<View>
+					<View >
 						<ColorPicker
 							adaptSpectrum={true}
 							boundedThumb={false}
 							sliderThickness={20}
+							value={storedColor}
 							thumbSize={30}
 							thumbColor='rgb(255,255,255)'
 							thumbScaleAnimationValue={1.1}
 							thumbAnimationDuration={50}
 							thumbShape='circle'
-							onComplete={() => onSelectColor()}
+							onComplete={handleColorSelect}
 						>
-							<Preview style={{ margin: 5, width: '90%' }}/>
+							<Preview style={{ marginTop: 5, marginBottom: 10, width: '90%' }}/>
 							<View style={{ margin: 10, width: '80%'}}>
 								<Panel3 />
 							</View>
-							<View style={{ margin: 5, width: '80%'}}>
+							<View style={{ marginTop: 10, marginBottom: 5, width: '80%'}}>
 								<BrightnessSlider />
 							</View>
 						</ColorPicker>
 					</View>
 					<View style={styles.bottomSeparator}></View>
-					<View>
-						<TouchableOpacity>
-							<Text style={styles.buttonText}>
+					<TouchableOpacity onPress={handleSubmit}>
+						<Text style={styles.buttonText}>
                             OK
-							</Text>
-						</TouchableOpacity>
-					</View>
+						</Text>
+					</TouchableOpacity>
 				</BlurView>
 			</SafeAreaView>
 		</Modal>
@@ -78,6 +87,8 @@ const styles = StyleSheet.create({
 		overflow: 'hidden',
 		backgroundColor: 'rgba(0,0,0,0.5)',
 	},
+	colorPickerContainer: {
+	},	
 	overlay: {
 		...StyleSheet.absoluteFillObject,
 	},

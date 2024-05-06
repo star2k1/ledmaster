@@ -66,8 +66,7 @@ const styles = StyleSheet.create({
 		//alignItems: 'center',
 		justifyContent: 'flex-start',
 		marginVertical: 20,
-		//marginLeft: 20,
-		//marginRight: 20
+		overflow: 'hidden'
 	},
 	title: {
 		marginTop: 120,
@@ -80,9 +79,10 @@ const styles = StyleSheet.create({
 	},
 	itemContainer: {
 		padding: 1,
-		borderRadius: 2,
+		borderRadius: 4,
 		backgroundColor: 'rgba(0,0,0,0.8)',
 		marginHorizontal: 9,
-		marginVertical: 5
+		marginVertical: 5,
+		overflow: 'hidden'
 	}
 });

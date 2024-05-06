@@ -12,7 +12,6 @@ import { useNavigation, router } from 'expo-router';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import MyAnimationScreen from './myanimations';
 import AnimationScreen from './animations';
-import LinearGradient from 'react-native-linear-gradient';
 
 const TopTabs = createMaterialTopTabNavigator();
 
@@ -26,7 +25,7 @@ const MyTopTabsLayout = () => {
 				},
 				tabBarStyle: {
 					backgroundColor: 'rgba(0,0,0,0.5)',
-					height: 45
+					height: 45,
 				},
 				tabBarIndicatorStyle: {
 					backgroundColor: 'dodgerblue'
@@ -133,8 +132,7 @@ const TabsLayout = () => {
 					</TouchableOpacity>
 				),
 				headerStyle : {
-					height: 90,
-					backgroundColor: 'rgba(0,0,0,0)'
+					height: 90
 				},
 				headerTitleStyle: {fontFamily:'Inter-Regular'},
 			}}
@@ -163,7 +161,6 @@ const TabsLayout = () => {
 				name="mydesigns"
 				component={MyTopTabsLayout}
 				options={{
-					headerStyle: { backgroundColor: 'transparent'},
 					title: t('my-designs.title'),
 					tabBarIcon: ({focused, color}) => (
 						<Ionicons name={ focused ? 'flame' : 'flame-outline'} size={32} color={color}/>

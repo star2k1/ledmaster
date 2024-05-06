@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Modal, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, TouchableWithoutFeedback, Keyboard, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useAppDispatch, useAppSelector } from '../../../state/store';
 import { sendTextToDevice } from '../../../state/BluetoothLE/listener';
@@ -8,19 +8,37 @@ import { Ionicons } from '@expo/vector-icons';
 import ColorPalette from '../../../components/ColorPalette';
 import ScreenTemplate from '../../../components/ScreenTemplate';
 import ColorPickerModal from '../../../components/ColorPickerModal';
+import { setCurrentColor } from '../../../state/Matrix/matrixSlice';
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		flexDirection: 'column',
 		alignItems: 'center',
-		justifyContent: 'flex-start',
+		justifyContent: 'center',
 	},
 	text: {
 		color: 'white',
 		marginTop: 225,
 		fontFamily: 'Inter-Bold',
 		fontSize: 25,
+	},
+	textInputContainer: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		width: '85%'
+	},
+	colorList: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	sendButton: {
+		backgroundColor: 'transparent',
+		position: 'absolute',
+		right: 0,
+		bottom: 0,
+		paddingHorizontal: 12,
+		paddingVertical: 18
 	},
 	headerContainer: {
 		height: 56,
@@ -35,7 +53,6 @@ const TextScreen = () => {
 	const bottomTabBarHeight = useBottomTabBarHeight();
 	const screenWidth = useAppSelector(state => (state.device.screenWidth));
 	const [text, setText] = useState('');
-	const [showModal, setShowModal] = useState(false);
 	const textColor = useAppSelector(state => (state.matrix.color));
 	const dispatch = useAppDispatch();
 	const onChangeText = (inputText) => {
@@ -47,7 +64,7 @@ const TextScreen = () => {
 		console.log('Input value:', textToSend);
 	};
 	const onSelectColor = ({ hex }) => {
-		console.log(hex);
+		dispatch(setCurrentColor(hex));
 	};
 	const [isColorPickerVisible, setIsColorPickerVisible] = useState(false);
 	const toggleColorPicker = () => {
@@ -56,68 +73,60 @@ const TextScreen = () => {
 	
 	return(
 		<ScreenTemplate>
-			<View style={[ styles.container, { paddingBottom: bottomTabBarHeight }, ]}>
-				<View style={styles.headerContainer}></View>
-				<View style={{justifyContent:'center', marginTop: 250, flexDirection: 'column', alignItems: 'center'}}>
-					<TextInput
-						style={{
-							backgroundColor: 'rgba(0,0,0,0.6)',
-							borderRadius: 14,
-							padding: 10,
-							width: screenWidth - screenWidth/4,
-							fontFamily: 'Inter-Regular',
-							color: textColor,
-							fontSize: 16,
-							marginBottom: 10
-						}}
-						placeholder={t('sample-message')}
-						onChangeText={onChangeText}
-						value={text}
-					/>
-					<TouchableOpacity
-						onPress={() => toggleColorPicker()}
-					>
-						<Ionicons
-							name={'color-palette'}
-							size={30}
-							color='white'
-						/>
-					</TouchableOpacity>
-					<ColorPalette />
-					<TouchableOpacity
-						style={{
-							backgroundColor: 'rgba(0,0,0,0.6)',
-							borderRadius: 14,
-							marginTop: 15,
-							paddingHorizontal: 10,
-							paddingVertical: 5,
-							flexDirection: 'row'
-						}}
-						onPress={() => handleButtonPress()}>
-						<Text
+			<TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+				<View style={[ styles.container, { paddingBottom: bottomTabBarHeight }, ]}>
+					<View style={styles.headerContainer}></View>
+						
+					<View style={styles.textInputContainer}>
+						<TextInput
 							style={{
-								fontSize: 16, 
-								color: 'rgba(255,255,255,0.8)', 
-								alignSelf:'center', 
-								padding: 5,
-								marginRight: 5, 
-								fontFamily: 'Inter-Bold'
-							}}>
-							{t('send')}
-						</Text>
-						<Ionicons
-							name='send-outline'
-							size={22}
-							color={'cyan'}
-							style={{alignSelf: 'center'}}
+								backgroundColor: 'rgba(0,0,0,0.6)',
+								borderRadius: 14,
+								paddingVertical: 11,
+								paddingHorizontal: 12,
+								fontFamily: 'Inter-Regular',
+								color: textColor,
+								fontSize: 16,
+								marginBottom: 10,
+								flex: 1
+							}}
+							placeholder={t('sample-message')}
+							onChangeText={onChangeText}
+							value={text}
 						/>
-					</TouchableOpacity>
+						<View style={styles.sendButton}>
+							<TouchableOpacity
+								disabled={!text}
+								onPress={() => handleButtonPress()}
+							>
+								<Ionicons
+									name='send'
+									size={25}
+									color={ !text ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255, 0.9)'}
+								/>
+							</TouchableOpacity>
+						</View>
+					</View>
+					<View style={styles.colorList}>
+						<TouchableOpacity
+							onPress={toggleColorPicker}
+							style={{marginRight: 10}}
+						>
+							<Ionicons
+								name={'color-palette'}
+								size={36}
+								color='white'
+							/>
+						</TouchableOpacity>
+						<ColorPalette />
+					</View>
 				</View>
-				<ColorPickerModal
-					onSelectColor={onSelectColor}
-					onClose={() => toggleColorPicker()}
-				/>
-			</View>
+			</TouchableWithoutFeedback>
+			<ColorPickerModal
+				visible={isColorPickerVisible}
+				onSelectColor={onSelectColor}
+				onClose={() => toggleColorPicker()}
+			/>
 		</ScreenTemplate>
 	);
 };

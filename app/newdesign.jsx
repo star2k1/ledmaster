@@ -1,38 +1,40 @@
-import { StyleSheet, SafeAreaView, View, Button, Alert } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Button, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import DrawingPadGrid from '../components/DrawingPadGrid';
-import LinearGradient from 'react-native-linear-gradient';
 import ColorPalette from '../components/ColorPalette';
 import { useAppDispatch } from '../state/store';
 import { useNavigation, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { addToMyDesigns } from '../state/Matrix/matrixSlice';
+import { Ionicons, FontAwesome6 } from '@expo/vector-icons';
+import ColorPickerModal from '../components/ColorPickerModal';
+import { setCurrentColor } from '../state/Matrix/matrixSlice';
+import * as Haptics from 'expo-haptics';
+import ScreenTemplate from '../components/ScreenTemplate';
 
 const styles = StyleSheet.create({
-	test: {
-		fontFamily: 'Inter-Bold',
-		fontSize: 40,
-		color: 'white',
-	},
 	testView: {
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
-
 	},
 	wrapper: {
-
+		flex: 1,
+		alignItems: 'center', // Center horizontally
+		justifyContent: 'center', // Center vertically
 		backgroundColor: 'rgba(0,0,0,0.2)',
 		borderRadius: 4,
 	},
 	header: {
-		height:100,
+		backgroundColor: 'rgba(0,0,0,0)', // Transparent background
 	},
 	footer: {
-		height: 100,
-		alignItems: 'center',
+		height: 80, // Fixed height
+		alignItems: 'center', // Center horizontally
+		justifyContent: 'center', // Center vertically
+		flexDirection: 'row', // Horizontal layout
 	},
 	eraserButton: {
 
@@ -48,6 +50,10 @@ const NewDesignScreen = () => {
 	const navigation = useNavigation();
 	const { t } = useTranslation();
 	const [orientationIsLandscape, setOrientation] = useState(true);
+	const [isColorPickerVisible, setIsColorPickerVisible] = useState(false);
+	const toggleColorPicker = () => {
+		setIsColorPickerVisible(!isColorPickerVisible);
+	};
 
 	async function changeScreenOrientation() {
 		if (orientationIsLandscape) {
@@ -56,6 +62,14 @@ const NewDesignScreen = () => {
 			await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
 		}
 	}
+	const onSelectColor = ({ hex }) => {
+		dispatch(setCurrentColor(hex));
+	};
+
+	const handleEraser = () => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+		dispatch(setCurrentColor('#000000'));
+	};
 
 	const [pixelColors, setPixelColors] = useState(() => {
   		let initialPixelColors = {};
@@ -115,26 +129,46 @@ const NewDesignScreen = () => {
 	);
 
 	return (
-		<SafeAreaView style={styles.testView}>
-			<LinearGradient
-				style={{ ...StyleSheet.absoluteFillObject }}
-				colors={['lightblue', 'darkblue', 'darkblue']}
-				start={{ x: 0, y: 0 }}
-				end={{ x: 4, y: 3 }}
-			/>
-			<View style={styles.header}></View>
-			<View style={styles.wrapper}>
+		<ScreenTemplate>
+			<View style={styles.testView}>
+				<View style={styles.header}></View>
 				<DrawingPadGrid
 					rows={MATRIX_ROWS}
 					columns={MATRIX_COLUMNS}
 					pixelColors={pixelColors}
 					setPixelColors={setPixelColors}
 				/>
+				<View style={styles.footer}>
+					<TouchableOpacity
+						onPress={handleEraser}
+						style={{marginRight: 10}}
+					>
+						<FontAwesome6
+							name='eraser'
+							size={35}
+							color='rgba(0,0,0,0.8)'
+						/>
+					</TouchableOpacity>
+					<TouchableOpacity
+						onPress={toggleColorPicker}
+						style={{marginRight: 10}}
+						disabled={true}
+					>
+						<Ionicons
+							name={'color-palette'}
+							size={35}
+							color='white'
+						/>
+					</TouchableOpacity>
+					<ColorPalette />
+				</View>
+				<ColorPickerModal
+					visible={isColorPickerVisible}
+					onSelectColor={onSelectColor}
+					onClose={() => toggleColorPicker()}
+				/>
 			</View>
-			<View style={styles.footer}>
-				<ColorPalette />
-			</View>
-		</SafeAreaView>
+		</ScreenTemplate>
 	);
 };
 

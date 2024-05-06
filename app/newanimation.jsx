@@ -1,4 +1,4 @@
-import { StyleSheet, SafeAreaView, View, Button, Alert } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text, Button, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -9,6 +9,12 @@ import { useAppDispatch } from '../state/store';
 import { useNavigation, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { addToMyDesigns } from '../state/Matrix/matrixSlice';
+import { Ionicons, FontAwesome6 } from '@expo/vector-icons';
+import ColorPickerModal from '../components/ColorPickerModal';
+import { setCurrentColor } from '../state/Matrix/matrixSlice';
+import AnimationFrames from '../components/AnimationFrames';
+import * as Haptics from 'expo-haptics';
+import ScreenTemplate from '../components/ScreenTemplate';
 
 const styles = StyleSheet.create({
 	test: {
@@ -20,19 +26,26 @@ const styles = StyleSheet.create({
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
-
+		verticalAlign: 'center'
 	},
 	wrapper: {
-
 		backgroundColor: 'rgba(0,0,0,0.2)',
 		borderRadius: 4,
 	},
-	header: {
-		height:100,
-	},
+	scrollContainer: {
+		marginVertical: 5,
+		flex: 1,
+		width: '100%',
+		heigth: 100,
+		marginBottom: 10,
+		backgroundColor: 'rgba(0,0,0,0.8)'
+	},	
 	footer: {
-		height: 100,
+		height: 40,
+		marginTop: 15,
+		marginBottom: 30,
 		alignItems: 'center',
+		flexDirection: 'row'
 	},
 	eraserButton: {
 
@@ -40,8 +53,7 @@ const styles = StyleSheet.create({
 
 });
 
-
-const NewDesignScreen = () => {
+const NewAnimationScreen = () => {
 	const MATRIX_ROWS = 8;
 	const MATRIX_COLUMNS = 32;
 
@@ -49,6 +61,10 @@ const NewDesignScreen = () => {
 	const navigation = useNavigation();
 	const { t } = useTranslation();
 	const [orientationIsLandscape, setOrientation] = useState(true);
+	const [isColorPickerVisible, setIsColorPickerVisible] = useState(false);
+	const toggleColorPicker = () => {
+		setIsColorPickerVisible(!isColorPickerVisible);
+	};
 
 	async function changeScreenOrientation() {
 		if (orientationIsLandscape) {
@@ -57,6 +73,9 @@ const NewDesignScreen = () => {
 			await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
 		}
 	}
+	const onSelectColor = ({ hex }) => {
+		dispatch(setCurrentColor(hex));
+	};
 
 	const [pixelColors, setPixelColors] = useState(() => {
   		let initialPixelColors = {};
@@ -115,28 +134,57 @@ const NewDesignScreen = () => {
 		}, [])
 	);
 
+	const handleEraser = () => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+		dispatch(setCurrentColor('#000000'));
+	};
+
 	return (
-		<SafeAreaView style={styles.testView}>
-			<LinearGradient
-				style={{ ...StyleSheet.absoluteFillObject }}
-				colors={['lightblue', 'darkblue', 'darkblue']}
-				start={{ x: 0, y: 0 }}
-				end={{ x: 4, y: 3 }}
-			/>
-			<View style={styles.header}></View>
-			<View style={styles.wrapper}>
-				<DrawingPadGrid
-					rows={MATRIX_ROWS}
-					columns={MATRIX_COLUMNS}
-					pixelColors={pixelColors}
-					setPixelColors={setPixelColors}
+		<ScreenTemplate>
+			<View style={styles.testView}>
+				<View style={styles.scrollContainer}>
+					<AnimationFrames />
+				</View>
+				<View style={styles.wrapper}>
+					<DrawingPadGrid
+						rows={MATRIX_ROWS}
+						columns={MATRIX_COLUMNS}
+						pixelColors={pixelColors}
+						setPixelColors={setPixelColors}
+					/>
+				</View>
+				<View style={styles.footer}>
+					<TouchableOpacity
+						onPress={handleEraser}
+						style={{marginRight: 10}}
+					>
+						<FontAwesome6
+							name='eraser'
+							size={35}
+							color='rgba(0,0,0,0.9)'
+						/>
+					</TouchableOpacity>
+					<TouchableOpacity
+						disabled={true}
+						onPress={toggleColorPicker}
+						style={{marginRight: 10}}
+					>
+						<Ionicons
+							name={'color-palette'}
+							size={35}
+							color='white'
+						/>
+					</TouchableOpacity>
+					<ColorPalette />
+				</View>
+				<ColorPickerModal
+					visible={isColorPickerVisible}
+					onSelectColor={onSelectColor}
+					onClose={() => toggleColorPicker()}
 				/>
 			</View>
-			<View style={styles.footer}>
-				<ColorPalette />
-			</View>
-		</SafeAreaView>
+		</ScreenTemplate>
 	);
 };
 
-export default NewDesignScreen;
+export default NewAnimationScreen;
