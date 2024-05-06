@@ -13,7 +13,6 @@ const useOrientation = () => {
                 await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
             }
         };
-        console.log(pathname);
         changeOrientation();
 
     }, [pathname]);

@@ -7,8 +7,9 @@ export interface DeviceReference {
 }
 
 const SERVICE_UUID = '1848';
-const CHARACTERISTIC_NOTIFY_UUID = '2BE2';
-const CHARACTERISTIC_WRITE_UUID = '2BFD';
+const SETUP_CHARACTERISTIC_UUID = '6cf32036-9765-4a72-9bb7-74555500b000';
+const TEXT_CHARACTERISTIC_UUID = '6cf32036-9765-4a72-9bb7-74555500b001';
+const DESIGN_CHARACTERISTIC_UUID = '6cf32036-9765-4a72-9bb7-74555500b002';
 
 class BluetoothLeManager {
 	bleManager: BleManager;
@@ -25,6 +26,8 @@ class BluetoothLeManager {
 			callback(state);
 		}, true);
 	};
+
+	
 
 	scanForPeripherals = (onDeviceFound: (deviceSummary: DeviceReference) => void) => {
 		this.bleManager.startDeviceScan(null, null, (_, scannedDevice) => {
@@ -53,11 +56,53 @@ class BluetoothLeManager {
 			const rawData = await this.bleManager.readCharacteristicForDevice(
 				this.device?.id ?? "",
 				SERVICE_UUID,
-				CHARACTERISTIC_NOTIFY_UUID
+				DESIGN_CHARACTERISTIC_UUID
 			);
 			return atob(rawData.value!);
 		} catch (e) {
 			console.log(e);
+		}
+	};
+
+	// sendData = async (data: string) => {
+    // // Convert the data to bytes
+    // const dataBytes = Buffer.from(data);
+
+    // // Split the data into 100-byte chunks
+    // const chunkSize = 100;
+	// const chunks = [];
+	// for (let i = 0; i < dataBytes.length; i += chunkSize) {
+    // 	chunks.push(dataBytes.subarray(i, i + chunkSize));
+	// }
+
+    // // Send each chunk
+    // try {
+    //     for (const chunk of chunks) {
+    //         const eData = btoa(chunk.toString());
+    //         await this.bleManager.writeCharacteristicWithResponseForDevice(
+    //             this.device?.id ?? "",
+    //             SERVICE_UUID,
+    //             DESIGN_CHARACTERISTIC_UUID,
+    //             eData
+    //         );
+    //     }
+    // } catch (e) {
+    //     console.log(e);
+    // }
+	// };
+
+	sendDesign = async (data: string) => {
+		//console.log(data);
+		const eData = btoa(data);
+		try {
+			await this.bleManager.writeCharacteristicWithResponseForDevice(
+				this.device?.id ?? "",
+				SERVICE_UUID,
+				DESIGN_CHARACTERISTIC_UUID,
+				eData
+			);
+		} catch (e) {
+			console.log("Error when sending design: ", e);
 		}
 	};
 
@@ -67,11 +112,25 @@ class BluetoothLeManager {
 			await this.bleManager.writeCharacteristicWithResponseForDevice(
 				this.device?.id ?? "",
 				SERVICE_UUID,
-				CHARACTERISTIC_WRITE_UUID,
+				SETUP_CHARACTERISTIC_UUID,
 				eData
 			);
 		} catch (e) {
-			console.log(e);
+			console.log("Error when sending data: ", e);
+		}
+	};
+
+	sendText = async (data: string) => {
+		const eData = btoa(data);
+		try {
+			await this.bleManager.writeCharacteristicWithResponseForDevice(
+				this.device?.id ?? "",
+				SERVICE_UUID,
+				TEXT_CHARACTERISTIC_UUID,
+				eData
+			);
+		} catch (e) {
+			console.log("Error when sending text: ", e);
 		}
 	};
 
@@ -80,9 +139,10 @@ class BluetoothLeManager {
 		characteristic: Characteristic | null,
 		emitter: (bleValue: {payload: string | BleError}) => void
 	) => {
-		if (error) {
+		if (error || !characteristic || !characteristic.value) {
 			console.log("ERROR", error);
 			emitter({ payload: '0' });
+			return;
 		}
 		const num = atob(characteristic?.value!);
 		emitter({ payload: num });
@@ -96,7 +156,7 @@ class BluetoothLeManager {
 			this.isListening = true;
 			this.device?.monitorCharacteristicForService(
 				SERVICE_UUID,
-				CHARACTERISTIC_NOTIFY_UUID,
+				DESIGN_CHARACTERISTIC_UUID,
 				(error, characteristic) => {
 					this.onDataReceived(error, characteristic, emitter);
 				}

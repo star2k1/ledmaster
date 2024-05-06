@@ -1,12 +1,9 @@
 import React, { useEffect } from 'react';
-import { SafeAreaView, Text, StyleSheet, TouchableOpacity, View, FlatList } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import { SafeAreaView, Text, StyleSheet View } from 'react-native';
 import MatrixGrid from '../../../components/CurrentMatrix';
 import { useAppDispatch, useAppSelector } from '../../../state/store';
-import { readDataFromDevice, sendDataToDevice } from '../../../state/BluetoothLE/listener';
 import { startListening } from '../../../state/BluetoothLE/bleSlice';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
 import ScreenTemplate from '../../../components/ScreenTemplate';
 
 const styles = StyleSheet.create({
@@ -54,14 +51,10 @@ const styles = StyleSheet.create({
 	},
 });
 
-const PresetScreen = () => {
+const AnimationScreen = () => {
 	const bottomTabBarHeight = useBottomTabBarHeight();
 	const dispatch = useAppDispatch();
 	const designs = null;
-
-	const readRemoteData = () => {
-		dispatch(readDataFromDevice());
-	};
 
 	useEffect(() => {
 		dispatch(startListening());
@@ -79,4 +72,4 @@ const PresetScreen = () => {
 	);
 };
 
-export default PresetScreen;
+export default AnimationScreen;

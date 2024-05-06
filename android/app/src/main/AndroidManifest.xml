@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.anonymous.ledmaster">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.anonymous.btled">
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
@@ -27,6 +27,8 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="com.anonymous.ledmaster"/>
         <data android:scheme="ledmaster-scheme"/>
+        <data android:scheme="btled-scheme"/>
+        <data android:scheme="com.anonymous.btled"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>

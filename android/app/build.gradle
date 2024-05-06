@@ -83,9 +83,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.ledmaster'
+    namespace 'com.anonymous.btled'
     defaultConfig {
-        applicationId 'com.anonymous.ledmaster'
+        applicationId 'com.anonymous.btled'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

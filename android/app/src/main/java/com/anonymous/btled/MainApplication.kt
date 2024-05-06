@@ -1,4 +1,4 @@
-package com.anonymous.ledmaster
+package com.anonymous.btled
 
 import android.app.Application
 import android.content.res.Configuration

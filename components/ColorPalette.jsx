@@ -1,30 +1,28 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { useAppDispatch } from '../state/store';
+import { setCurrentColor } from '../state/Matrix/matrixSlice';
 
-const ColorPalette = ({ onSelectColor }) => {
-	// Define the color options
+const ColorPalette = () => {
+	const dispatch = useAppDispatch();
 	const colors = [
-		'white',
-		'gray',
-		'brown',
-		'red',
-		'orange',
-		'yellow',
-		'green',
-		'blue',
-		'lightblue',
-		'indigo',
-		'violet',
-		'cyan',
-		'magenta',
-		'purple',
-		'pink',
+		'#000000',	  // black
+		'#FFFFFF',    // white
+		'#808080',    // gray
+		'#A52A2A',    // brown
+		'#FF0000',    // red
+		'#FFA500',    // orange
+		'#FFFF00',    // yellow
+		'#008000',    // green
+		'#0000FF',    // blue
+		'#ADD8E6',    // lightblue
+		'#4B0082',    // indigo
+		'#EE82EE',    // violet
+		'#00FFFF',    // cyan
+		'#FF00FF',    // magenta
+		'#800080',    // purple
+		'#FFC0CB',    // pink
 	];
-
-	// Function to handle color selection
-	const handleColorSelect = (color) => {
-		onSelectColor(color);
-	};
 
 	return (
 		<View style={styles.palette}>
@@ -32,7 +30,7 @@ const ColorPalette = ({ onSelectColor }) => {
 				<TouchableOpacity
 					key={index}
 					style={[styles.colorOption, { backgroundColor: color }]}
-					onPress={() => handleColorSelect(color)}
+					onPress={() => dispatch(setCurrentColor(color))}
 				/>
 			))}
 		</View>

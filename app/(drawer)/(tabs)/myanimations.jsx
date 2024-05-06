@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-const MyDesignScreen = () => {
+const MyAnimationScreen = () => {
 	const bottomTabBarHeight = useBottomTabBarHeight();
 	const myDesigns = useAppSelector((state) => state.matrix.myDesigns);
 	return(
@@ -43,12 +43,12 @@ const MyDesignScreen = () => {
 					draggable={false}
 					bottomOffset={120}
 					rightOffset={30}
-					idleOpacity={0.5}
-					onPress={() => router.navigate('newdesign')}
+					idleOpacity={0.4}
+					onPress={() => router.navigate('newanimation')}
 				/>
 			</SafeAreaView>
 		</ScreenTemplate>
 	);
 };
 
-export default MyDesignScreen;
+export default MyAnimationScreen;

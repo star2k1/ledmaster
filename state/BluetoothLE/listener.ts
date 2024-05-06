@@ -6,8 +6,10 @@ import {
     setRetrievedData,
     startListening,
     startCheckingState,
-    setBluetoothState
-} from './slice';
+    setBluetoothState,
+} from './bleSlice';
+import { setCurrentState } from '../Matrix/matrixSlice';
+import AlertService from '../../services/AlertService';
 
 import bluetoothLeManager, { DeviceReference } from './BluetoothLeManager';
 
@@ -20,6 +22,17 @@ export const connectToDevice = createAsyncThunk(
             await bluetoothLeManager.connectToPeripheral(ref.id);
             thunkApi.dispatch(setConnectedDevice(ref));
             bluetoothLeManager.stopScanningForPeripherals();
+            thunkApi.dispatch(setCurrentState(true));
+            const subscription = bluetoothLeManager.device.onDisconnected(
+                (error, device) => {
+                    if (!error) {
+                        thunkApi.dispatch(setConnectedDevice(null));
+                    } else {
+                        console.error('Device disconnected...', error);
+                    }
+                    AlertService().showDisconnectAlert(device.name ? device.name : 'Device');
+                    subscription.remove();
+                });
         }
     }
 );
@@ -28,9 +41,8 @@ export const disconnectFromDevice = createAsyncThunk(
     "bleThunk/disconnectFromDevice",
     async (ref: DeviceReference, thunkApi) => {
         if(ref.id) {
-            const closedDevice = await bluetoothLeManager.disconnectFromPeripheral(ref.id);
+            await bluetoothLeManager.disconnectFromPeripheral(ref.id);
             thunkApi.dispatch(setConnectedDevice(null));
-            return closedDevice;
         }
     }
 );
@@ -43,10 +55,24 @@ export const readDataFromDevice = createAsyncThunk(
     }
 );
 
+export const sendDesignToDevice = createAsyncThunk(
+    'bleThunk/sendDesignToDevice',
+    async (design: string, _) => {
+        await bluetoothLeManager.sendDesign(design);
+    }
+);
+
 export const sendDataToDevice = createAsyncThunk(
     'bleThunk/sendDataToDevice',
     async (data: string, _) => {
         await bluetoothLeManager.sendData(data);
+    }
+);
+
+export const sendTextToDevice = createAsyncThunk(
+    'bleThunk/sendTextToDevice',
+    async (text: string, _) => {
+        await bluetoothLeManager.sendText(text);
     }
 );
 

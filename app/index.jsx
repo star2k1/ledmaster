@@ -16,8 +16,10 @@ import { useTranslation } from 'react-i18next';
 import LanguageDialog from '../components/LanguageModal';
 import { useAppSelector, useAppDispatch } from '../state/store';
 import { disconnectFromDevice } from '../state/BluetoothLE/listener';
-import { startCheckingState } from '../state/BluetoothLE/slice';
+import { startCheckingState } from '../state/BluetoothLE/bleSlice';
 import MaskedView from '@react-native-masked-view/masked-view';
+import ConnectionsModal from '../components/ConnectionsModal';
+import AlertService from '../services/AlertService';
 
 
 const styles = StyleSheet.create({
@@ -94,14 +96,20 @@ const HomeScreen = () => {
 	
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
-
+	const bluetoothState = useAppSelector(state => (state.ble.bluetoothEnabled));
+	const myAlerts = AlertService(t);
 	useEffect(() => {
 		dispatch(startCheckingState());
 	}, []);
 
-	const [isDialogVisible, setIsDialogVisible] = useState(false);
-	const toggleDialog = () => {
-		setIsDialogVisible(!isDialogVisible);
+	const [isLanguageDialogVisible, setIsLanguageDialogVisible] = useState(false);
+	const toggleLanguageDialog = () => {
+		setIsLanguageDialogVisible(!isLanguageDialogVisible);
+	};
+
+	const [isConnectionDialogVisible, setIsConnectionDialogVisible] = useState(false);
+	const toggleConnectionDialog = () => {
+		setIsConnectionDialogVisible(!isConnectionDialogVisible);
 	};
 
 	const theme = useColorScheme();
@@ -114,18 +122,27 @@ const HomeScreen = () => {
 		router.push('/(tabs)/presets');
 	};
 
-	const onDisconnectButtonTapped = () => {
+	const onDisconnectButtonTapped = async() => {
 		dispatch(disconnectFromDevice(connectedDevice));
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 	};
 
 	const onConnectButtonTapped = () => {
-		router.push('/(settings)/connections');
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+		bluetoothState ? toggleConnectionDialog() : myAlerts.showBluetoothAlert();
+	};
+
+	const handleConnectionModalClose = () => {
+		if (connectedDevice) {
+			toggleConnectionDialog();
+			router.push('/(tabs)/presets');
+		} else {
+			toggleConnectionDialog();
+		}
 	};
 
 	const onLanguageButtonTapped = () => {
-		toggleDialog(); 
+		toggleLanguageDialog(); 
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 	};
 	
@@ -214,8 +231,12 @@ const HomeScreen = () => {
 			</View>
 			<StatusBar barStyle={statusBarStyle} />
 			<LanguageDialog
-				visible={isDialogVisible}
-				onClose={toggleDialog}
+				visible={isLanguageDialogVisible}
+				onClose={toggleLanguageDialog}
+			/>
+			<ConnectionsModal
+				visible={isConnectionDialogVisible}
+				onClose={handleConnectionModalClose}
 			/>
 		</SafeAreaView>
 	);

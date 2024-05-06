@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
 
 });
 
+
 const NewDesignScreen = () => {
 	const MATRIX_ROWS = 8;
 	const MATRIX_COLUMNS = 32;

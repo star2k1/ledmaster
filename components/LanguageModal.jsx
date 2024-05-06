@@ -3,7 +3,6 @@ import { View, Text, Modal, TouchableOpacity, FlatList, SafeAreaView, StyleSheet
 import { useTranslation } from 'react-i18next';
 import languagesList from '../services/languagesList.json';
 import { languageResources } from '../services/i18next';
-import LinearGradient from 'react-native-linear-gradient';
 import { BlurView } from 'expo-blur';
 
 const LanguageDialog = ({ visible, onClose }) => {
@@ -17,20 +16,14 @@ const LanguageDialog = ({ visible, onClose }) => {
 	return (
 		<Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
 			<SafeAreaView style={styles.container}>
-				<BlurView intensity={90} style={styles.overlay}>
+				<BlurView intensity={40} style={styles.overlay}>
 					<TouchableOpacity 
 						style={styles.overlay} 
 						activeOpacity={1} 
 						onPress={onClose} // Close the modal when clicking outside
 					/>
 				</BlurView>
-				<BlurView intensity={80} style={styles.dialogContainer}>
-					<LinearGradient
-						style={StyleSheet.absoluteFillObject}
-						colors={['rgba(0, 0, 0, 0.5)', 'rgba(0, 0, 120, 0.5)']}
-						start={{ x: 0.1, y: 0.5 }} // Adjust the x value to move the starting point to the right
-						end={{ x: 1, y: 5}}   // Adjust the x value to move the ending point to the right
-					/>
+				<BlurView intensity={50} style={styles.dialogContainer}>
 					<View>
 						<Text style={styles.title}>{t('select-language')}</Text>
 						<FlatList 
@@ -54,16 +47,17 @@ const LanguageDialog = ({ visible, onClose }) => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: 'rgba(80, 80, 80, 0.4)', // Semi-transparent background
+		backgroundColor: 'rgba(255, 255, 255, 0.2)', // Semi-transparent background
 		justifyContent: 'center',
 		alignItems: 'center'
 	},
 	dialogContainer: {
 		padding: 25,
-		paddingBottom: 25,
+		paddingBottom: 35,
 		borderRadius: 20,
 		width: '80%',
 		overflow: 'hidden',
+		backgroundColor: 'rgba(0,0,0,0.4)'
 	},
 	overlay: {
 		...StyleSheet.absoluteFillObject,
@@ -79,7 +73,7 @@ const styles = StyleSheet.create({
 		color: 'white', // Text color
 		fontSize: 17,
 		marginBottom: 5,
-		fontFamily: 'Inter-Light',
+		fontFamily: 'Inter-Regular',
 	},
 	separator: {
 		height: 0.5,
