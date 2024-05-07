@@ -9,8 +9,9 @@ import { sendDesignToDevice } from '../state/BluetoothLE/listener';
 import { setCurrentDesign } from '../state/Matrix/matrixSlice';
 import { useAppSelector } from '../state/store';
 import AlertService from '../services/AlertService';
+import AnimationPreview from './AnimationPreview';
 
-export default function DesignList({ data }) {
+export default function AnimationList({ data }) {
 	const { t } = useTranslation();
 	const myAlerts = AlertService(t);
 	const dispatch = useDispatch();
@@ -19,32 +20,37 @@ export default function DesignList({ data }) {
 	const listItemWidth = useAppSelector(state => (state.device.screenWidth)) / 2;
 
 	const bitmapItem = ({ item }) => (
-		<TouchableOpacity onPress={() => sendPixels(item)}>
+		// <TouchableOpacity onPress={() => sendPixels(item)}>
+		// 	<View style={styles.itemContainer}>
+		// 		<AnimationPreview animationData={item} itemWidth={listItemWidth} frameDelay={500}/>
+		// 	</View>
+		// </TouchableOpacity>
+		<TouchableOpacity>
 			<View style={styles.itemContainer}>
-				<BitmapImage bitmapData={item} itemWidth={listItemWidth} />
+				<AnimationPreview animationData={item} itemWidth={listItemWidth} frameDelay={500}/>
 			</View>
 		</TouchableOpacity>
 	);
 
-	const padInteger = (number) => {
-		return number <= 100 ? String(number).padStart(3, '0') : '001';
-	};
+	// const padInteger = (number) => {
+	// 	return (number !== 0 && number <= 100) ? String(number).padStart(3, '0') : '001';
+	// };
 
-	const sendPixels = (pixelColors) => {
-		//console.log(hexArrayToString(pixelColors));
-		if (!bluetoothEnabled) myAlerts.showBluetoothAlert();
-		else if (!connectedDevice) console.log('No device!');
-		else {
-			dispatch(sendDesignToDevice(padInteger(1) + hexArrayToString(pixelColors)));
-			dispatch(setCurrentDesign(pixelColors));
-		}
-		// dispatch(sendDataToDevice(hexArrayToBitmap(pixelColors).toString()));
-		// console.log('Value sent', hexArrayToBitmap(pixelColors));
-	};
+	// const sendPixels = (pixelColors) => {
+	// 	console.log(hexArrayToString(pixelColors));
+	// 	if (!bluetoothEnabled) myAlerts.showBluetoothAlert();
+	// 	else if (!connectedDevice) console.log('No device!');
+	// 	else {
+	// 		dispatch(sendDesignToDevice(padInteger(1) + hexArrayToString(pixelColors)));
+	// 		dispatch(setCurrentDesign(pixelColors));
+	// 	}
+	// 	dispatch(sendDataToDevice(hexArrayToBitmap(pixelColors).toString()));
+	// 	console.log('Value sent', hexArrayToBitmap(pixelColors));
+	// };
 	const bottomTabBarHeight = useBottomTabBarHeight();
 	return (
 		<View style={[styles.container, {paddingBottom: bottomTabBarHeight}]}>
-			{ data.length === 0 ? (
+			{ (!data || data.length === 0) ? (
 				<View style={{flex: 1}}>
 					<Text style={styles.title}>{t('my-designs.missing')}</Text>
 				</View>

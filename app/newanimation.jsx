@@ -8,7 +8,7 @@ import ColorPalette from '../components/ColorPalette';
 import { useAppDispatch } from '../state/store';
 import { useNavigation, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { addToMyDesigns } from '../state/Matrix/matrixSlice';
+import { addToMyAnimations, addToPresets } from '../state/Matrix/matrixSlice';
 import { Ionicons, FontAwesome6 } from '@expo/vector-icons';
 import ColorPickerModal from '../components/ColorPickerModal';
 import { setCurrentColor } from '../state/Matrix/matrixSlice';
@@ -77,6 +77,7 @@ const NewAnimationScreen = () => {
 		dispatch(setCurrentColor(hex));
 	};
 
+	
 	const [pixelColors, setPixelColors] = useState(() => {
   		let initialPixelColors = {};
   		for (let i = 0; i < MATRIX_COLUMNS; i++) {
@@ -87,24 +88,29 @@ const NewAnimationScreen = () => {
   		return initialPixelColors;
 	});
 
-	const toArray = (pixelColors) => {
-		const pixelColorsArray = [];
-		for (let i = 0; i < MATRIX_COLUMNS; i++) {
-  			pixelColorsArray.push([]);
-  			for (let j = 0; j < MATRIX_ROWS; j++) {
-    			pixelColorsArray[i].push(pixelColors[`${i},${j}`]);
-  			}
-		}
-		return pixelColorsArray;
+	const [animationFrames, setAnimationFrames] = useState([]);
+
+	const handleAddFrame = () => {
+		setAnimationFrames([...animationFrames, pixelColors]);
+		setPixelColors(() => {
+			let newPixelColors = {};
+			for (let i = 0; i < MATRIX_COLUMNS; i++) {
+				for (let j = 0; j < MATRIX_ROWS; j++) {
+					newPixelColors[`${i},${j}`] = '#000000';
+				}
+			}
+			return newPixelColors;
+		});
 	};
 
+	
+
 	const onSave = (pixelColors) => {
-		const isNotBlank = Object.values(pixelColors).some(color => color !== '#000000');
-		if (isNotBlank && !pixelColors.length > 0){
-			dispatch(addToMyDesigns(toArray(pixelColors)));
+		if (animationFrames.length > 0) {
+			dispatch(addToMyAnimations(animationFrames));
 			router.back();
 		} else {
-			Alert.alert(t('new-design.empty-canvas'), '\n' + t('new-design.empty-canvas-message'));
+			Alert.alert('Empty animation. Please add at leasat one frame');
 		}
 	};
 
@@ -143,8 +149,11 @@ const NewAnimationScreen = () => {
 		<ScreenTemplate>
 			<View style={styles.testView}>
 				<View style={styles.scrollContainer}>
-					<AnimationFrames />
+					<AnimationFrames frames={animationFrames}/>
 				</View>
+				<TouchableOpacity onPress={handleAddFrame}>
+					<Ionicons name='add' size={30} color='white' />
+				</TouchableOpacity>
 				<View style={styles.wrapper}>
 					<DrawingPadGrid
 						rows={MATRIX_ROWS}

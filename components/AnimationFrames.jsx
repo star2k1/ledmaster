@@ -2,36 +2,31 @@ import { View, StyleSheet } from 'react-native';
 import React from 'react';
 import { ScrollView } from 'react-native';
 import BitmapImage from './DesignPreview';
-import { hexArrayToBitmap } from '../services/hexToBitmap';
-import { useAppSelector } from '../state/store';
-import { Ionicons } from '@expo/vector-icons';
 
-const AnimationFrames = () => {
+const AnimationFrames = ({frames}) => {
 	//const [animationFrames, setAnimationFrames] = useEffect(['#000000']);
-	const currentDesign = useAppSelector((state) => state.matrix.currentMatrix);
+	const MATRIX_ROWS = 8;
+	const MATRIX_COLUMNS = 32;
+	const toArray = (pixelColors) => {
+		const pixelColorsArray = [];
+		for (let i = 0; i < MATRIX_COLUMNS; i++) {
+  			pixelColorsArray.push([]);
+  			for (let j = 0; j < MATRIX_ROWS; j++) {
+    			pixelColorsArray[i].push(pixelColors[`${i},${j}`]);
+  			}
+		}
+		return pixelColorsArray;
+	};
+	//console.log(toArray(frames[0]));
 	return (
 		<View>
 			<ScrollView
 				horizontal={true}
 				contentContainerStyle={styles.scrollContainer}
 			>
-				<View style={{width: 200, height: 60, backgroundColor: 'black', marginHorizontal: 10 }}>
-				</View>
-				<View style={{width: 200, height: 60, backgroundColor: 'black', marginHorizontal: 10}}>
-
-				</View>
-				<View>
-					<Ionicons name='add' size={40} style={{marginTop: 13}} color='white' />
-				</View>
-				<BitmapImage
-					bitmapData={hexArrayToBitmap(currentDesign)}
-					itemWidth={100} 
-				/>
-				
-				<BitmapImage
-					bitmapData={hexArrayToBitmap(currentDesign)}
-					itemWidth={100} 
-				/>
+				{frames ?? frames.map((frame, index) => (
+					<BitmapImage key={index} frame={frame} />
+				))}
 			</ScrollView>
 		</View>
 	);

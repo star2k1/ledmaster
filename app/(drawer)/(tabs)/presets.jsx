@@ -8,6 +8,7 @@ import { startListening } from '../../../state/BluetoothLE/bleSlice';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenTemplate from '../../../components/ScreenTemplate';
+import DesignList from '../../../components/DesignList';
 
 const styles = StyleSheet.create({
 	container: {
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
 const PresetScreen = () => {
 	const bottomTabBarHeight = useBottomTabBarHeight();
 	const dispatch = useAppDispatch();
-	const designs = null;
+	const presets = useAppSelector((state) => state.matrix.presets);
 
 	const readRemoteData = () => {
 		dispatch(readDataFromDevice());
@@ -73,7 +74,7 @@ const PresetScreen = () => {
 				<View style={styles.headerContainer}>
 					<MatrixGrid />
 				</View>
-				<Text style={styles.text}>{ designs ?? 'Siin on eelloodud disainid' }</Text>
+				<DesignList data={presets} />
 			</View>
 		</ScreenTemplate>
 	);

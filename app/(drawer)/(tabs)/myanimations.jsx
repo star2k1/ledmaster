@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import MatrixGrid from '../../../components/CurrentMatrix';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import DesignList from '../../../components/DesignList';
+import AnimationList from '../../../components/AnimationList';
 import { useAppSelector } from '../../../state/store';
 import { FAB } from '@rneui/themed';
 import { router } from 'expo-router';
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
 
 const MyAnimationScreen = () => {
 	const bottomTabBarHeight = useBottomTabBarHeight();
-	const myDesigns = useAppSelector((state) => state.matrix.myDesigns);
+	const myAnimations = useAppSelector((state) => state.matrix.myAnimations);
 	const handleFabPress = () => {
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 		router.navigate('newanimation');
@@ -51,7 +51,7 @@ const MyAnimationScreen = () => {
 				<View style={styles.headerContainer}>
 					<MatrixGrid/>
 				</View>
-				<DesignList data={myDesigns}/>
+				<AnimationList data={myAnimations}/>
 				<FAB
 					icon={() => <Ionicons name='add' color='white' size={25}/>}
 					color='rgba(0,0,0,0.5)'
