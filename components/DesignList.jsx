@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
 import React from 'react';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import BitmapImage from './DesignPreview';
@@ -16,7 +16,8 @@ export default function DesignList({ data }) {
 	const dispatch = useDispatch();
 	const bluetoothEnabled = useAppSelector(state => (state.ble.bluetoothEnabled));
 	const connectedDevice = useAppSelector(state => (state.ble.connectedDevice));
-	const listItemWidth = useAppSelector(state => (state.device.screenWidth)) / 2;
+	const listItemWidth = Dimensions.get('window').width / 2.05;
+	const matrixState = useAppSelector(state => (state.matrix.isOn));
 
 	const bitmapItem = ({ item }) => (
 		<TouchableOpacity onPress={() => sendPixels(item)}>
@@ -34,6 +35,7 @@ export default function DesignList({ data }) {
 		//console.log(hexArrayToString(pixelColors));
 		if (!bluetoothEnabled) myAlerts.showBluetoothAlert();
 		else if (!connectedDevice) console.log('No device!');
+		//else if (!matrixState) console.error("Device is off");
 		else {
 			dispatch(sendDesignToDevice(padInteger(1) + hexArrayToString(pixelColors)));
 			dispatch(setCurrentDesign(pixelColors));
@@ -81,7 +83,7 @@ const styles = StyleSheet.create({
 		borderRadius: 4,
 		backgroundColor: 'rgba(0,0,0,0.8)',
 		marginHorizontal: 9,
-		marginVertical: 5,
+		marginVertical: 7,
 		overflow: 'hidden'
 	}
 });

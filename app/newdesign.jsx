@@ -9,7 +9,7 @@ import { useNavigation, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { addToMyDesigns } from '../state/Matrix/matrixSlice';
 import { Ionicons, FontAwesome6 } from '@expo/vector-icons';
-import ColorPickerModal from '../components/ColorPickerModal';
+import ColorPickerModalSmall from '../components/ColorPickerModalSmall';
 import { setCurrentColor } from '../state/Matrix/matrixSlice';
 import * as Haptics from 'expo-haptics';
 import ScreenTemplate from '../components/ScreenTemplate';
@@ -152,7 +152,6 @@ const NewDesignScreen = () => {
 					<TouchableOpacity
 						onPress={toggleColorPicker}
 						style={{marginRight: 10}}
-						disabled={true}
 					>
 						<Ionicons
 							name={'color-palette'}
@@ -162,7 +161,7 @@ const NewDesignScreen = () => {
 					</TouchableOpacity>
 					<ColorPalette />
 				</View>
-				<ColorPickerModal
+				<ColorPickerModalSmall
 					visible={isColorPickerVisible}
 					onSelectColor={onSelectColor}
 					onClose={() => toggleColorPicker()}

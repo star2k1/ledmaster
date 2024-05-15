@@ -12,6 +12,7 @@ import { setCurrentState } from '../Matrix/matrixSlice';
 import AlertService from '../../services/AlertService';
 
 import bluetoothLeManager, { DeviceReference } from './BluetoothLeManager';
+import { blue } from 'react-native-reanimated/lib/typescript/reanimated2/Colors';
 
 export const bleMiddleware = createListenerMiddleware();
 
@@ -52,6 +53,13 @@ export const readDataFromDevice = createAsyncThunk(
     async (_, thunkApi) => {
         const data = await bluetoothLeManager.readData();
         thunkApi.dispatch(setRetrievedData(data));
+    }
+);
+
+export const sendAnimationToDevice = createAsyncThunk(
+    'bleThunk/sendAnimationToDevice',
+    async (animation: string[][][], _) => {
+        await bluetoothLeManager.sendAnimation(animation);
     }
 );
 

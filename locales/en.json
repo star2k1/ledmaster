@@ -33,6 +33,9 @@
         "empty-canvas": "Empty canvas",
         "empty-canvas-message": "Please create a design before saving"
     },
+    "new-animation": {
+        "not-enough-frames": "Please add more frames"
+    },
     "no-more-devices": "No more devices found",
     "not-connected": "Not connected",
     "or": "or",
@@ -43,5 +46,6 @@
     "select-language": "Choose your language",
     "settings": "Settings",
     "text": "Text",
+    "visuals": "Visuals",
     "welcome": "Welcome!"
 }

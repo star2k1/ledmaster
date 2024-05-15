@@ -1,23 +1,24 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { Dimensions } from "react-native";
 
 interface DeviceState {
     orientation: string,
-    screenWidth: number,
-    screenHeight: number
 }
 
 const initialState: DeviceState = {
-    orientation: 'PORTRAIT_UP',
-    screenWidth: Dimensions.get('window').width,
-    screenHeight: Dimensions.get('window').height
+    orientation: 'portrait',
 }
 
 const deviceSlice = createSlice({
     name: "device",
     initialState,
     reducers: {
+        setOrientation: (state, action: PayloadAction<string>) => {
+            state.orientation = action.payload;
+        }
     },
 });
+
+export const { setOrientation } = deviceSlice.actions;
 
 export default deviceSlice.reducer;

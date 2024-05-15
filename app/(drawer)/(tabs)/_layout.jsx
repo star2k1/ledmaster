@@ -19,13 +19,15 @@ const MyTopTabsLayout = () => {
 	const { t } = useTranslation();
 	return (
 		<TopTabs.Navigator
+			initialRouteName='myanimations'
 			screenOptions={{
+				
 				tabBarLabelStyle: {
 					fontFamily: 'Inter-Regular'
 				},
 				tabBarStyle: {
-					backgroundColor: 'rgba(0,0,0,0.5)',
 					height: 45,
+					backgroundColor: 'transparent',
 				},
 				tabBarIndicatorStyle: {
 					backgroundColor: 'dodgerblue'
@@ -37,13 +39,14 @@ const MyTopTabsLayout = () => {
 				component={MyAnimationScreen}
 				options = {{ 
 					headerStyle: { backgroundColor: 'transparent' },
-					tabBarLabel: t('animations')
+					tabBarLabel: t('animations'),
+					unmountOnBlur: true
 				}}
 			/>
 			<TopTabs.Screen
 				name= 'designs' 
 				component={MyDesignScreen}
-				options = {{ tabBarLabel: t('designs')}}
+				options = {{ tabBarLabel: t('visuals'), unmountOnBlur: true}}
 			/>
 		</TopTabs.Navigator>
 	);
@@ -53,13 +56,16 @@ const TopTabsLayout = () => {
 	const { t } = useTranslation();
 	return (
 		<TopTabs.Navigator
+			initialRouteName='animations'
 			screenOptions={{
 				tabBarLabelStyle: {
 					fontFamily: 'Inter-Regular'
 				},
 				tabBarStyle: {
 					backgroundColor: 'transparent',
-					height: 45
+					height: 45,
+					position: 'relative',
+					top: 0
 				},
 				tabBarIndicatorStyle: {
 					backgroundColor: 'dodgerblue'
@@ -69,12 +75,12 @@ const TopTabsLayout = () => {
 			<TopTabs.Screen
 				name= 'animations'
 				component={AnimationScreen}
-				options = {{ tabBarLabel: t('animations')}}
+				options = {{ tabBarLabel: t('animations'), unmountOnBlur: true}}
 			/>
 			<TopTabs.Screen
 				name= 'designs' 
 				component={PresetScreen}
-				options = {{ tabBarLabel: t('designs')}}
+				options = {{ tabBarLabel: t('visuals'), unmountOnBlur: true}}
 			/>
 		</TopTabs.Navigator>
 	);
@@ -95,26 +101,24 @@ const TabsLayout = () => {
 					borderTopLeftRadius: 20,
 					borderTopRightRadius: 20,
 					height: 90,
-					backgroundColor: 'rgba(12,15,20,0.6)',
+					backgroundColor: 'rgba(12,13,21,0.6)',
 					borderTopColor: 'transparent',
 					borderTopWidth: 0,
-					elevation: 0,
+					overflow: 'hidden'
 				},
 				tabBarShowLabel: false,
 				tabBarBackground: () => (
-					<BlurView
-						intensity={15}
-						style={{
-							position: 'absolute',
-							top: 0,
-							bottom: 0,
-							left: 0,
-							right: 0,
-							borderTopLeftRadius: 20,
-							borderTopRightRadius: 20,
-							overflow: 'hidden'
-						}}
-					/>
+					<View style={{
+						borderTopLeftRadius: 20,
+						borderTopRightRadius: 20,
+						overflow: 'hidden',
+						elevation: 0,
+					}}>
+						<BlurView
+							intensity={15}
+							style={[ StyleSheet.absoluteFill] }
+						/>
+					</View>
 				),
 				tabBarActiveTintColor: 'rgba(255,255,255,0.9)',
 				headerRight: () => (
@@ -132,6 +136,7 @@ const TabsLayout = () => {
 					</TouchableOpacity>
 				),
 				headerStyle : {
+					backgroundColor: 'transparent',
 					height: 90
 				},
 				headerTitleStyle: {fontFamily:'Inter-Regular'},
@@ -146,6 +151,7 @@ const TabsLayout = () => {
 						<Ionicons name={ focused ? 'albums' : 'albums-outline'} size={32} color={color} />
 					),
 					tabBarActiveTintColor: 'dodgerblue',
+					unmountOnBlur: true
 				}}/>
 			<Tabs.Screen 
 				name="text"
@@ -166,6 +172,7 @@ const TabsLayout = () => {
 						<Ionicons name={ focused ? 'flame' : 'flame-outline'} size={32} color={color}/>
 					),
 					tabBarActiveTintColor: 'dodgerblue',
+					unmountOnBlur: true
 				}} />
 		</Tabs.Navigator>
 	);

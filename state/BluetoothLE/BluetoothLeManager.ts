@@ -1,5 +1,6 @@
 import { BleError, BleManager, Characteristic, Device } from 'react-native-ble-plx';
 import { atob, btoa } from 'react-native-quick-base64';
+import { hexArrayToString } from '../../services/hexToBitmap';
 
 export interface DeviceReference {
 	name?: string | null;
@@ -90,6 +91,25 @@ class BluetoothLeManager {
     //     console.log(e);
     // }
 	// };
+
+	sendAnimation = async (data: string[][][]) => {
+		try {
+			const len = String(data.length).padStart(3, '0');
+			for (const frame of data) {
+				let frameString = hexArrayToString(frame);
+				frameString = len + frameString;
+				const eData = btoa(frameString);
+				await this.bleManager.writeCharacteristicWithResponseForDevice(
+					this.device?.id ?? "",
+					SERVICE_UUID,
+					DESIGN_CHARACTERISTIC_UUID,
+					eData
+				);
+			}
+		} catch (e) {
+			console.log("Error when sending animation: ", e);
+		}
+	};
 
 	sendDesign = async (data: string) => {
 		//console.log(data);

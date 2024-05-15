@@ -8,6 +8,7 @@ interface MatrixState {
     myAnimations: string[][][][],
     presets: string[][][],
     currentMatrix: string[][],
+    currentAnimation: string[][][],
     noOfFrames: number,
     color: string,
     brightness: number
@@ -19,6 +20,7 @@ const initialState: MatrixState = {
     myAnimations: [],
     presets: [],
     currentMatrix: [],
+    currentAnimation: [],
     noOfFrames: 1,
     color: '#FFFFFF',
     brightness: MAX_BRIGHTNESS / 2
@@ -44,6 +46,9 @@ const matrixSlice = createSlice({
         setCurrentDesign: (state, action: PayloadAction<string[][]>) => {
             state.currentMatrix = action.payload;
         },
+        setCurrentAnimation: (state, action: PayloadAction<string[][][]>) => {
+            state.currentAnimation = action.payload;
+        },
         setCurrentFrames: (state, action: PayloadAction<number>) => {
             state.noOfFrames = action.payload;
         },
@@ -65,6 +70,7 @@ export const {
     addToPresets,
     removeFromMyDesigns,
     setCurrentDesign,
+    setCurrentAnimation,
     setCurrentFrames,
     setCurrentColor,
     setCurrentState,

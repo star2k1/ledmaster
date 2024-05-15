@@ -1,12 +1,12 @@
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
 import React from 'react';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import BitmapImage from './DesignPreview';
 import { useTranslation } from 'react-i18next';
 import { hexArrayToString } from '../services/hexToBitmap';
 import { useDispatch } from 'react-redux';
-import { sendDesignToDevice } from '../state/BluetoothLE/listener';
-import { setCurrentDesign } from '../state/Matrix/matrixSlice';
+import { sendAnimationToDevice } from '../state/BluetoothLE/listener';
+import { setCurrentAnimation } from '../state/Matrix/matrixSlice';
 import { useAppSelector } from '../state/store';
 import AlertService from '../services/AlertService';
 import AnimationPreview from './AnimationPreview';
@@ -17,7 +17,7 @@ export default function AnimationList({ data }) {
 	const dispatch = useDispatch();
 	const bluetoothEnabled = useAppSelector(state => (state.ble.bluetoothEnabled));
 	const connectedDevice = useAppSelector(state => (state.ble.connectedDevice));
-	const listItemWidth = useAppSelector(state => (state.device.screenWidth)) / 2;
+	const listItemWidth = Dimensions.get('window').width / 2.05;
 
 	const bitmapItem = ({ item }) => (
 		// <TouchableOpacity onPress={() => sendPixels(item)}>
@@ -25,9 +25,9 @@ export default function AnimationList({ data }) {
 		// 		<AnimationPreview animationData={item} itemWidth={listItemWidth} frameDelay={500}/>
 		// 	</View>
 		// </TouchableOpacity>
-		<TouchableOpacity>
+		<TouchableOpacity onPress={() => sendAnimation(item)}>
 			<View style={styles.itemContainer}>
-				<AnimationPreview animationData={item} itemWidth={listItemWidth} frameDelay={500}/>
+				<AnimationPreview animationData={item} itemWidth={listItemWidth} frameDelay={300}/>
 			</View>
 		</TouchableOpacity>
 	);
@@ -35,6 +35,14 @@ export default function AnimationList({ data }) {
 	// const padInteger = (number) => {
 	// 	return (number !== 0 && number <= 100) ? String(number).padStart(3, '0') : '001';
 	// };
+	const sendAnimation = (animation) => {
+		if (!bluetoothEnabled) myAlerts.showBluetoothAlert();
+		else if (!connectedDevice) console.log('No device!');
+		else {
+			dispatch(sendAnimationToDevice(animation));
+			dispatch(setCurrentAnimation(animation));
+		}
+	};
 
 	// const sendPixels = (pixelColors) => {
 	// 	console.log(hexArrayToString(pixelColors));
@@ -58,7 +66,7 @@ export default function AnimationList({ data }) {
 				<FlatList 
 					data={data}
 					renderItem={bitmapItem}
-					keyExtractor={(item, index) => index.toString()}
+					keyExtractor={(_, index) => index.toString()}
 					numColumns={2}
 				/>
 			)}
@@ -70,8 +78,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		justifyContent: 'flex-start',
-		marginVertical: 20,
-		overflow: 'hidden'
+		marginTop: 20,
 	},
 	title: {
 		marginTop: 120,
@@ -87,7 +94,7 @@ const styles = StyleSheet.create({
 		borderRadius: 4,
 		backgroundColor: 'rgba(0,0,0,0.8)',
 		marginHorizontal: 9,
-		marginVertical: 5,
+		marginVertical: 7,
 		overflow: 'hidden'
 	}
 });

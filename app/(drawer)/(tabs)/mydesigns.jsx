@@ -23,7 +23,15 @@ const styles = StyleSheet.create({
 	},
 	fab: {
 		position: 'absolute',
-		right: 25
+		right: 25,
+		elevation: 10,
+		shadowColor: '#000',
+		shadowOffset: {
+			width: 0,
+			height: 5,
+		},
+		shadowOpacity: 0.34,
+		shadowRadius: 6.27,
 	},
 	text: {
 		color: 'white',
@@ -48,8 +56,8 @@ const MyDesignScreen = () => {
 				</View>
 				<DesignList data={myDesigns}/>
 				<FAB
-					icon={() => <Ionicons name='add' color='white' size={25}/>}
-					color='rgba(0,0,0,0.5)'
+					icon={() => <Ionicons name='add' color='black' size={25}/>}
+					color='rgba(255,255,255,0.9)'
 					size='large'
 					onPress={handleFabPress}
 					style={[styles.fab, { bottom: bottomTabBarHeight + 25 }]}

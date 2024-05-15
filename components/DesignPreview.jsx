@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Dimensions } from 'react-native';
+import React from 'react';
+import { View,  } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { hexArrayToBitmap } from '../services/hexToBitmap';
 

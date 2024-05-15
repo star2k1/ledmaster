@@ -33,6 +33,9 @@
         "empty-canvas": "Kujundus puudub",
         "empty-canvas-message": "Palun looge kujundus enne salvestamist"
     },
+    "new-animation": {
+        "not-enough-frames": "Palun lisage rohkem kaadreid"
+    },
     "no-more-devices": "Rohkem seadmeid ei leitud",
     "not-connected": "Pole ühendatud",
     "or": "või",
@@ -43,5 +46,6 @@
     "select-language": "Vali keel",
     "settings": "Seaded",
     "text": "Tekst",
+    "visuals": "Visuaalid",
     "welcome": "Tere tulemast!"
 }

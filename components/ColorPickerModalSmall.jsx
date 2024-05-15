@@ -15,7 +15,7 @@ import ColorPicker, { Preview, Panel3, BrightnessSlider } from 'reanimated-color
 import { useAppSelector } from '../state/store';
 import Animated from 'react-native-reanimated';
 
-const ColorPickerModal = ({ visible, onClose, onSelectColor }) => {
+const ColorPickerModalSmall = ({ visible, onClose, onSelectColor }) => {
 	const { t } = useTranslation();
 	const storedColor = useAppSelector(state => state.matrix.color);
 	const [selectedColor, setSelectedColor] = useState(storedColor);
@@ -32,6 +32,7 @@ const ColorPickerModal = ({ visible, onClose, onSelectColor }) => {
 			visible={visible}
 			transparent
 			onRequestClose={onClose}
+			supportedOrientations={['landscape']}
 		>
 			<View style={styles.container}>
 				<BlurView intensity={20} style={styles.overlay}>
@@ -42,15 +43,13 @@ const ColorPickerModal = ({ visible, onClose, onSelectColor }) => {
 					/>
 				</BlurView>
 				<BlurView intensity={40} style={styles.dialogContainer}>
-					<Text style={styles.titleText}>{t('choose-color')}</Text>
-					<View style={styles.bottomSeparator}></View>
 					<View style={styles.colorPickerContainer}>
 						<ColorPicker
 							adaptSpectrum
 							boundedThumb={false}
 							sliderThickness={20}
 							value={storedColor}
-							thumbSize={30}
+							thumbSize={25}
 							thumbScaleAnimationValue={1.1}
 							thumbAnimationDuration={50}
 							onComplete={handleColorSelect}
@@ -91,7 +90,7 @@ const styles = StyleSheet.create({
 		paddingTop: 15,
 		paddingBottom: 15,
 		borderRadius: 28,
-		width: '85%',
+		width: '30%',
 		overflow: 'hidden',
 		backgroundColor: 'rgba(0,0,0,0.5)',
 		alignContent: 'center',
@@ -100,7 +99,7 @@ const styles = StyleSheet.create({
 	colorPickerContainer: {
 		alignSelf: 'center',
 		width: '90%',
-		paddingHorizontal: 20,
+		paddingHorizontal: 15,
 		shadowColor: '#000',
 		shadowOffset: {
 			width: 0,
@@ -140,7 +139,7 @@ const styles = StyleSheet.create({
 	},
 	titleText: {
 		color: 'white', // Text color
-		fontSize: 17,
+		fontSize: 15,
 		alignSelf: 'center',
 		textAlign: 'center',
 		fontFamily: 'Inter-Medium',
@@ -152,7 +151,6 @@ const styles = StyleSheet.create({
 		alignSelf: 'center',
 		textAlign: 'center',
 		fontFamily: 'Inter-Medium',
-		margin: 5
 	},
 	bottomSeparator: {
 		height: 0.3,
@@ -161,4 +159,4 @@ const styles = StyleSheet.create({
 	},
 });
 	
-export default ColorPickerModal;
+export default ColorPickerModalSmall;
