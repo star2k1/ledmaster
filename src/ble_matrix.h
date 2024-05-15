@@ -6,6 +6,7 @@
 #include <Adafruit_NeoPixel.h>
 #include "atawi8c.h"
 #include <vector>
+#include <regex>
 #ifndef PSTR
  #define PSTR // Make Arduino Due happy
 #endif
@@ -61,8 +62,7 @@ class MySetupCallbacks : public BLECharacteristicCallbacks {
 
 /* Class that contains animation specific functions */
 class MyAnimations {
-  /* Switches between RED and BLUE color to create a police effect */
-  void policeCon();
+  
 };
 
 ////////////////////////////// Function prototypes //////////////////////////////
@@ -75,6 +75,9 @@ void initMatrix();
 
 /* Initializes the BLE server */
 void initBle();
+
+/* Switches between RED and BLUE color to create a police effect */
+  void policeCon();
 
 /* Parses RGB short hex format color to RGB565 color value */
 uint16_t parseShortHexColor(String colorStr);

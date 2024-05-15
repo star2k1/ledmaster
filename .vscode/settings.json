@@ -298,6 +298,7 @@
   "cmake.configureOnOpen": false,
   "files.associations": {
     "*.ts": "typescript",
-    "cstdint": "cpp"
+    "cstdint": "cpp",
+    "string": "cpp"
   }
 }

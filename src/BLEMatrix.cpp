@@ -15,12 +15,13 @@ bool displayAnimation = false;
 bool scrollText = false;
 std::vector<String> animationData;
 unsigned long prevAnimationMillis = 0;
-unsigned long animationInterval = 30;
+unsigned long animationInterval = 200;
 String lastText;
 String lastDesign;
 unsigned long prevPoliceMillis = 0;
 unsigned long policeInterval = 200;
 int policeState = 0;
+std::regex hexPattern("^[0-9A-Fa-f]{6}.*$");
 
 enum class DisplayType:int{
   Text = 1,
@@ -53,7 +54,7 @@ uint32_t value = 0;
 int pixelPerChar = 6; // Width of Standard Font Characters is 8X6 Pixels
 int x = matrix.width(); // Width of the Display
 unsigned long prevTextMillis = 0;
-unsigned long scrollInterval = 55; // Interval between updates in milliseconds
+unsigned long scrollInterval = 50; // Interval between updates in milliseconds
 
 void setScrollingText() {
   matrixOn = true;
@@ -76,13 +77,15 @@ void setScrollingText() {
 
 void playAnimation() {
   matrixOn = true;
+  static int currentFrame = 0;
   unsigned long currentTime = millis();
-  if (currentTime -prevAnimationMillis >= animationInterval) {
-    if (currentFrameIdx < animationData.size()) {
-      stringToBitmap(animationData[currentFrameIdx]);
-      currentFrameIdx++;
-    } else currentFrameIdx = 0;
-    prevAnimationMillis = currentTime;
+  if (currentTime - prevAnimationMillis >= animationInterval) {
+    stringToBitmap(animationData[currentFrame].substring(3)); // Convert the string to bitmap and display it
+    prevAnimationMillis = currentTime; // Update the last animation time
+    currentFrame++; // Move to the next frame
+    if (currentFrame >= animationData.size()) {
+      currentFrame = 0;
+    }
   }
 }
 
@@ -153,6 +156,10 @@ uint16_t parseHexColor(String colorStr) {
 }
 
 void setMatrixText(String message) {
+  if (!std::regex_match(message.c_str(), hexPattern)) {
+    Serial.println("Invalid text format");
+    return;
+  } 
   memfuncs->saveText(message);
   memfuncs->saveCurrentDisplayType(int(DisplayType::Text));
   matrix.setTextColor(parseHexColor(message.substring(0,6)));
@@ -186,7 +193,7 @@ void turnMatrixOn() {
     lastDesign = memfuncs->getDesign();
     if(lastDesign) setMatrixDesign(lastDesign);
   } else setMatrixText("FFFFFFOn");
-  matrixOn = true;
+  matrixOn = true;  
   Serial.println("Turning on...");
 }
 
@@ -270,7 +277,7 @@ void initBle() {
   Serial.println("Waiting a client connection to notify...");
 }
 
-void MyAnimations::policeCon() {
+void policeCon() {
   unsigned long currentMillis = millis();
   if (currentMillis - prevPoliceMillis >= policeInterval) {
     switch (policeState) {
@@ -298,32 +305,32 @@ void MyServerCallbacks::onDisconnect(BLEServer* pServer) {
 void MyDesignCallbacks::onWrite(BLECharacteristic *pDesignCharacteristic) {
   if (!matrixOn) return;
   displayAnimation = false;
-  scrollText = false;
-  animationData.clear();
   memfuncs->saveAnimationStatus(displayAnimation);
   memfuncs->saveScrollStatus(scrollText);
   String receivedValue = String(pDesignCharacteristic->getValue().c_str());
-
-  Serial.println("\n=====BITMAP=====");
+  //Serial.println("\n=====BITMAP=====");
   if (receivedValue.length() > 0 && receivedValue.length() % 3 == 0) {
     int numFrames = receivedValue.substring(0,3).toInt();
     if (numFrames > 100 || numFrames < 1) {
       Serial.println("Invalid number of frames!");
       return;
     }
+    if (animationData.empty() || numFrames == 1) animationData.clear();
     if (numFrames == 1) {
       String pixelData = receivedValue.substring(3, receivedValue.length());
+      scrollText = false;
       setMatrixDesign(pixelData);
     } else {
       animationData.push_back(receivedValue);
       if (animationData.size() >= numFrames) {
         Serial.println("Received animation!");
+        scrollText = false;
         displayAnimation = true;
+        return;
       }
-      Serial.println("===ANIMATION===");
     }
-    Serial.println(receivedValue.substring(0,3) + " frames, " + receivedValue.substring(3));
-    Serial.println("=====BITMAP=====\n");
+    //Serial.println(receivedValue.substring(0,3) + " frames, " + receivedValue.substring(3));
+    //Serial.println("=====BITMAP=====\n");
   } else Serial.println("Invalid format for design!");
 }
 
@@ -333,24 +340,23 @@ void MyTextCallbacks::onWrite(BLECharacteristic *pTextCharacteristic) {
   scrollText = false;
   memfuncs->saveAnimationStatus(displayAnimation);
   memfuncs->saveScrollStatus(scrollText);
-  String receivedValue = String(pTextCharacteristic->getValue().c_str());
-  if (receivedValue.length() > 0) {
-    Serial.println("\n=====TEXT=====");
-    Serial.print("#");
-    Serial.println(receivedValue.substring(0,6));
-    Serial.print(" ");
-    memfuncs->saveText(receivedValue);
-    if (receivedValue.length() > 11) {
-      lastText = receivedValue;
-      scrollText = true;
-      memfuncs->saveScrollStatus(scrollText);
-    }
-    else {
-      Serial.println(receivedValue.substring(6));
-      setMatrixText(receivedValue);
-    }
-    Serial.println("\n=====TEXT=====\n");
+  String receivedValue = pTextCharacteristic->getValue().c_str();
+  if (receivedValue.length() < 7) return;
+  Serial.println("\n=====TEXT=====");
+  Serial.print("#");
+  Serial.println(receivedValue.substring(0,6));
+  Serial.print(" ");
+  memfuncs->saveText(receivedValue);
+  if (receivedValue.length() > 11) {
+    lastText = receivedValue;
+    scrollText = true;
+    memfuncs->saveScrollStatus(scrollText);
   }
+  else {
+    Serial.println(receivedValue.substring(6));
+    setMatrixText(receivedValue);
+  }
+  Serial.println("\n=====TEXT=====\n");
 }
 
 void MySetupCallbacks::onWrite(BLECharacteristic *pSetupCharacteristic) {
@@ -404,7 +410,7 @@ void loop() {
   // disconnecting
   if (!deviceConnected && oldDeviceConnected) {
     delay(500);                   // give the bluetooth stack the chance to get things ready
-    //pServer->startAdvertising();  // restart advertising
+    pServer->startAdvertising();  // restart advertising
     Serial.println("Started advertising");
     oldDeviceConnected = deviceConnected;
   }

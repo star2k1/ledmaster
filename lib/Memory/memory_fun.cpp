@@ -4,6 +4,8 @@ Preferences prefs;
 
 String MemoryFunctions::getDesign() {
     prefs.begin("matrix_prefs", true);
+    bool isAvailable = prefs.isKey("lastDesign");
+    if (!isAvailable) return "";
     String lastDesign = prefs.getString("lastDesign");
     prefs.end();
     return lastDesign;
@@ -17,6 +19,8 @@ void MemoryFunctions::saveDesign(String lastDesign) {
 
 String MemoryFunctions::getText() {
     prefs.begin("matrix_prefs", true);
+    bool isAvailable = prefs.isKey("lastText");
+    if (!isAvailable) return "";
     String lastText = prefs.getString("lastText");
     prefs.end();
     return lastText;
@@ -30,6 +34,8 @@ void MemoryFunctions::saveText(String lastText) {
 
 int MemoryFunctions::getCurrentDisplayType() {
     prefs.begin("matrix_prefs", true);
+    bool isAvailable = prefs.isKey("displayType");
+    if (!isAvailable) return 0;
     int currentDisplayType = prefs.getInt("displayType");
     prefs.end();
     return currentDisplayType;
@@ -43,6 +49,8 @@ void MemoryFunctions::saveCurrentDisplayType(int displayType) {
 
 bool MemoryFunctions::getScrollStatus() {
     prefs.begin("matrix_prefs", true);
+    bool isAvailable = prefs.isKey("scrollStatus");
+    if (!isAvailable) return false;
     bool scrollStatus = prefs.getBool("scrollStatus");
     prefs.end();
     return scrollStatus;
@@ -56,6 +64,8 @@ void MemoryFunctions::saveScrollStatus(bool scrollStatus) {
 
 bool MemoryFunctions::getAnimationStatus() {
     prefs.begin("matrix_prefs", true);
+    bool isAvailable = prefs.isKey("animationStatus");
+    if (!isAvailable) return false;
     bool animationStatus = prefs.getBool("animationStatus");
     prefs.end();
     return animationStatus;
