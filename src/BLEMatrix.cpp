@@ -12,7 +12,9 @@ bool matrixOn = false;
 bool turnMatrixOffRequested = false;
 bool turnMatrixOnRequested = false;
 bool displayAnimation = false;
+bool saveAnimationRequested = false;
 bool scrollText = false;
+std::vector<String> animationBuf;
 std::vector<String> animationData;
 unsigned long prevAnimationMillis = 0;
 unsigned long animationInterval = 200;
@@ -25,7 +27,8 @@ std::regex hexPattern("^[0-9A-Fa-f]{6}.*$");
 
 enum class DisplayType:int{
   Text = 1,
-  Design = 2
+  Design = 2,
+  Animation = 3
 };
 
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(MATRIX_WIDTH, MATRIX_HEIGHT, MATRIX_PIN,
@@ -46,6 +49,7 @@ BLEAdvertising *pAdvertising = NULL;
 BLECharacteristic* pTextCharacteristic = NULL;
 BLECharacteristic* pSetupCharacteristic = NULL;
 BLECharacteristic* pDesignCharacteristic = NULL;
+BLECharacteristic* pAnimationCharacteristic = NULL;
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
 uint32_t value = 0;
@@ -113,10 +117,8 @@ void stringToBitmap(String receivedData) {
     uint16_t pixelColor = parseShortHexColor(pixelColorStr); // Parse color string to uint16_t
     bitmap[bitmapIndex++] = pixelColor; // Store color in bitmap array
   }
-  // Draw the bitmap on the matrix using drawRGBBitmap function
   matrix.drawRGBBitmap(0, 0, bitmap, MATRIX_WIDTH, MATRIX_HEIGHT);
   matrix.show(); // Show the updated matrix
-  // Clean up memory
   delete[] bitmap;
 }
 
@@ -187,22 +189,31 @@ void turnMatrixOn() {
   currentDisplayType = memfuncs->getCurrentDisplayType();
   if (currentDisplayType == int(DisplayType::Text)) {
     lastText = memfuncs->getText();
-    if(lastText) setMatrixText(lastText);
-  }
-  else if (currentDisplayType == int(DisplayType::Design)) {
+    if (lastText) setMatrixText(lastText);
+  } else if (currentDisplayType == int(DisplayType::Design)) {
     lastDesign = memfuncs->getDesign();
-    if(lastDesign) setMatrixDesign(lastDesign);
+    if (lastDesign) setMatrixDesign(lastDesign);
+  } else if (currentDisplayType == int(DisplayType::Animation)) {
+    animationData = memfuncs->getAnimation();
+    if (!animationData.empty()) displayAnimation = true;
   } else setMatrixText("FFFFFFOn");
   matrixOn = true;  
   Serial.println("Turning on...");
+}
+
+void saveAnimation() {
+  memfuncs->saveAnimation(animationBuf);
+  animationData = animationBuf;
+  animationBuf.clear();
+  saveAnimationRequested = false;
+  memfuncs->saveCurrentDisplayType(int(DisplayType::Animation));
+  displayAnimation = true;
 }
 
 void printInfo() {
   Serial.println("<<<<<<<<<<<< Data stored on ESP32 >>>>>>>>>>>>>>>\n");
   Serial.print("Last text: ");
   Serial.println("#" + lastText.substring(0,6) + " " + lastText.substring(6));
-  Serial.print("Last design: ");
-  Serial.println(lastDesign.substring(0,3) + " frames, " + lastDesign.substring(3));
   Serial.print("Display type: ");
   Serial.println(currentDisplayType);
   Serial.println("\n<<<<<<<<<<<<<<<<<<<<< END >>>>>>>>>>>>>>>>>>>>>");
@@ -255,6 +266,16 @@ void initBle() {
   pDesignCharacteristic->addDescriptor(new BLE2902());
   pDesignCharacteristic->setCallbacks(new MyDesignCallbacks());
 
+  // Create the BLE Animation Characteristic
+  BLECharacteristic *pAnimationCharacteristic = pService->createCharacteristic(
+    ANIMATION_CHARACTERISTIC_UUID,
+    BLECharacteristic::PROPERTY_NOTIFY |
+    BLECharacteristic::PROPERTY_READ | 
+    BLECharacteristic::PROPERTY_WRITE
+  );
+  pAnimationCharacteristic->addDescriptor(new BLE2902());
+  pAnimationCharacteristic->setCallbacks(new MyAnimationCallbacks());
+
   // Create the BLE Setup Characteristic
   BLECharacteristic *pSetupCharacteristic = pService->createCharacteristic(
     SETUP_CHARACTERISTIC_UUID, 
@@ -277,7 +298,7 @@ void initBle() {
   Serial.println("Waiting a client connection to notify...");
 }
 
-void policeCon() {
+void policeBlink() {
   unsigned long currentMillis = millis();
   if (currentMillis - prevPoliceMillis >= policeInterval) {
     switch (policeState) {
@@ -308,30 +329,34 @@ void MyDesignCallbacks::onWrite(BLECharacteristic *pDesignCharacteristic) {
   memfuncs->saveAnimationStatus(displayAnimation);
   memfuncs->saveScrollStatus(scrollText);
   String receivedValue = String(pDesignCharacteristic->getValue().c_str());
-  //Serial.println("\n=====BITMAP=====");
+  if (receivedValue.length() > 0 && receivedValue.length() % 3 == 0) {
+    animationData.clear();
+    scrollText = false;
+    setMatrixDesign(receivedValue);
+  } else Serial.println("Invalid format for design!");
+}
+
+void MyAnimationCallbacks::onWrite(BLECharacteristic *pAnimationCharacteristic) {
+  if (!matrixOn) return;
+  memfuncs->saveAnimationStatus(displayAnimation);
+  memfuncs->saveScrollStatus(scrollText);
+  String receivedValue = String(pAnimationCharacteristic->getValue().c_str());
   if (receivedValue.length() > 0 && receivedValue.length() % 3 == 0) {
     int numFrames = receivedValue.substring(0,3).toInt();
     if (numFrames > 100 || numFrames < 1) {
       Serial.println("Invalid number of frames!");
       return;
-    }
-    if (animationData.empty() || numFrames == 1) animationData.clear();
-    if (numFrames == 1) {
-      String pixelData = receivedValue.substring(3, receivedValue.length());
-      scrollText = false;
-      setMatrixDesign(pixelData);
     } else {
-      animationData.push_back(receivedValue);
-      if (animationData.size() >= numFrames) {
+      animationBuf.push_back(receivedValue);
+      if (animationBuf.size() >= numFrames) {
         Serial.println("Received animation!");
+        displayAnimation = false;
         scrollText = false;
-        displayAnimation = true;
+        saveAnimationRequested = true;
         return;
       }
     }
-    //Serial.println(receivedValue.substring(0,3) + " frames, " + receivedValue.substring(3));
-    //Serial.println("=====BITMAP=====\n");
-  } else Serial.println("Invalid format for design!");
+  } else Serial.println("Invalid format for animation!");
 }
 
 void MyTextCallbacks::onWrite(BLECharacteristic *pTextCharacteristic) {
@@ -384,8 +409,9 @@ void setup() {
   currentDisplayType = memfuncs->getCurrentDisplayType();
   scrollText = memfuncs->getScrollStatus();
   displayAnimation = memfuncs->getAnimationStatus();
+  if (displayAnimation) memfuncs->getAnimation();
   Serial.begin(115200);
-  while(!Serial && millis()<4000) { /* wait for serial connect, for up to 4 sec */ }
+  while(!Serial && millis()<5000) { /* wait for serial connect, for up to 5 sec */ }
   printInfo();
   initOnboardLed();
   initMatrix();
@@ -403,8 +429,9 @@ void loop() {
       turnMatrixOffRequested = false;
     }
   } else { // disconnected
-    policeCon();
+    policeBlink();
   }
+  if (saveAnimationRequested) saveAnimation();
   if (displayAnimation) playAnimation();
   if (scrollText) setScrollingText();
   // disconnecting

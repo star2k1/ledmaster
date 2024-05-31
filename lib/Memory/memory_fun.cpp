@@ -76,3 +76,43 @@ void MemoryFunctions::saveAnimationStatus(bool animationStatus) {
     prefs.putBool("animationStatus", animationStatus);
     prefs.end();
 };
+
+String MemoryFunctions::serializeVector(const std::vector<String>& animation) {
+    if (animation.empty()) return "";
+    String result;
+    for (size_t i = 0; i < animation.size(); ++i) {
+        result += animation[i];
+        if (i < animation.size() - 1) result += '|';
+    }
+    return result;
+}
+
+std::vector<String> MemoryFunctions::deserializeVector(const String& serAnimation) {
+    std::vector<String> result;
+    if (serAnimation.length() == 0) return result;
+    const char delimiter = '|';
+    size_t startPos = 0;
+    size_t endPos = serAnimation.indexOf(delimiter);
+    while (endPos != -1) {
+        result.push_back(serAnimation.substring(startPos, endPos));
+        startPos = endPos + 1;
+        endPos = serAnimation.indexOf(delimiter, startPos);
+    }
+    result.push_back(serAnimation.substring(startPos));
+    return result;
+}
+
+std::vector<String> MemoryFunctions::getAnimation() {
+    prefs.begin("matrix_prefs", true);
+    bool isAvailable = prefs.isKey("animationData");
+    if (!isAvailable) return std::vector<String>();
+    std::vector<String> animation = deserializeVector(prefs.getString("animationData"));
+    prefs.end();
+    return animation;
+}
+
+void MemoryFunctions::saveAnimation(std::vector<String> animationData) {
+    prefs.begin("matrix_prefs", false);
+    prefs.putString("animationData", serializeVector(animationData));
+    prefs.end();
+}

@@ -29,7 +29,8 @@
 #define SERVICE_UUID "1848"   // Media Control Service
 #define SETUP_CHARACTERISTIC_UUID "6cf32036-9765-4a72-9bb7-74555500b000"  // Used for brightness, speed and state of LED matrix
 #define TEXT_CHARACTERISTIC_UUID "6cf32036-9765-4a72-9bb7-74555500b001" // Used to upload text
-#define DESIGN_CHARACTERISTIC_UUID "6cf32036-9765-4a72-9bb7-74555500b002" // Used to upload bitmaps and animations
+#define DESIGN_CHARACTERISTIC_UUID "6cf32036-9765-4a72-9bb7-74555500b002" // Used to upload bitmaps
+#define ANIMATION_CHARACTERISTIC_UUID "6cf32036-9765-4a72-9bb7-74555500b003" // Used to upload animations
 
 ////////////////////////////// Classes and their functions //////////////////////////////
 
@@ -46,6 +47,10 @@ class MyServerCallbacks : public BLEServerCallbacks {
 class MyDesignCallbacks : public BLECharacteristicCallbacks {
   /* Calls setMatrixDesign if the receivedValue is valid and matrix is on */
   void onWrite(BLECharacteristic *pDesignCharacteristic);
+};
+
+class MyAnimationCallbacks : public BLECharacteristicCallbacks {
+  void onWrite(BLECharacteristic *pAnimationCharacteristic);
 };
 
 /* Class that encapsulates text characteristic callbacks */
@@ -77,7 +82,7 @@ void initMatrix();
 void initBle();
 
 /* Switches between RED and BLUE color to create a police effect */
-  void policeCon();
+  void policeBlink();
 
 /* Parses RGB short hex format color to RGB565 color value */
 uint16_t parseShortHexColor(String colorStr);
@@ -105,6 +110,9 @@ void turnMatrixOn();
 
 /* Calls stringToBitmap for as many frames as needed to play animation on matrix */
 void playAnimation();
+
+/* Saves animation into ESP32 preferences storage */
+void saveAnimation();
 
 /* Prints info about items in ESP32 preferences storage */
 void printInfo();
