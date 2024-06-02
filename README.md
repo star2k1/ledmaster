@@ -1,7 +1,7 @@
 
-# BLE controlled LED matrix ESP32
+# BLE controlled LED Matrix ESP32
 
-BLE controlled LED matrix is project that aims to create an open source application to control various LED matrices over Bluetooth Low Energy. 
+BLE controlled LED Matrix is project that aims to create an open source application to control various LED matrices over Bluetooth Low Energy. 
 
 This is the branch that contains ESP32 code for the BLE controlled LED matrix repository.
 
