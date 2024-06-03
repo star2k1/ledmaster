@@ -27,17 +27,13 @@ export default function DesignList({ data }) {
 		</TouchableOpacity>
 	);
 
-	const padInteger = (number) => {
-		return number <= 100 ? String(number).padStart(3, '0') : '001';
-	};
-
 	const sendPixels = (pixelColors) => {
 		//console.log(hexArrayToString(pixelColors));
 		if (!bluetoothEnabled) myAlerts.showBluetoothAlert();
 		else if (!connectedDevice) console.log('No device!');
 		//else if (!matrixState) console.error("Device is off");
 		else {
-			dispatch(sendDesignToDevice(padInteger(1) + hexArrayToString(pixelColors)));
+			dispatch(sendDesignToDevice(hexArrayToString(pixelColors)));
 			dispatch(setCurrentDesign(pixelColors));
 		}
 		// dispatch(sendDataToDevice(hexArrayToBitmap(pixelColors).toString()));

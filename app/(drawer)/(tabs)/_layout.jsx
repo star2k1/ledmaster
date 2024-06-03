@@ -8,7 +8,7 @@ import MyDesignScreen from './mydesigns';
 import PresetScreen from './presets';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, router } from 'expo-router';
+import { useNavigation } from 'expo-router';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import MyAnimationScreen from './myanimations';
 import AnimationScreen from './animations';
@@ -21,7 +21,6 @@ const MyTopTabsLayout = () => {
 		<TopTabs.Navigator
 			initialRouteName='myanimations'
 			screenOptions={{
-				
 				tabBarLabelStyle: {
 					fontFamily: 'Inter-Regular'
 				},
@@ -31,7 +30,7 @@ const MyTopTabsLayout = () => {
 				},
 				tabBarIndicatorStyle: {
 					backgroundColor: 'dodgerblue'
-				},
+				}
 			}}
 		>
 			<TopTabs.Screen
@@ -95,6 +94,7 @@ const TabsLayout = () => {
 	return (
 		<Tabs.Navigator 
 			screenOptions={{
+				freezeOnBlur: true,
 				tabBarHideOnKeyboard: true,
 				tabBarStyle: {
 					position: 'absolute',
@@ -137,8 +137,8 @@ const TabsLayout = () => {
 				),
 				headerStyle : {
 					backgroundColor: 'transparent',
-					height: 90
-				},
+					height: 90,
+					shadowOpacity: 0				},
 				headerTitleStyle: {fontFamily:'Inter-Regular'},
 			}}
 		>		
@@ -162,6 +162,7 @@ const TabsLayout = () => {
 						<Ionicons name={ focused ? 'text' : 'text-outline'} size={30} color={color} />
 					),
 					tabBarActiveTintColor: 'dodgerblue',
+					unmountOnBlur: true
 				}} />
 			<Tabs.Screen 
 				name="mydesigns"

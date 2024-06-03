@@ -48,7 +48,7 @@ const ColorPickerModalSmall = ({ visible, onClose, onSelectColor }) => {
 							adaptSpectrum
 							boundedThumb={false}
 							sliderThickness={20}
-							value={storedColor}
+							value={storedColor === '#000000' ? '#FFFFFF' : storedColor }
 							thumbSize={25}
 							thumbScaleAnimationValue={1.1}
 							thumbAnimationDuration={50}
@@ -100,17 +100,10 @@ const styles = StyleSheet.create({
 		alignSelf: 'center',
 		width: '90%',
 		paddingHorizontal: 15,
-		shadowColor: '#000',
-		shadowOffset: {
-			width: 0,
-			height: 5,
-		},
-		shadowOpacity: 0.34,
-		shadowRadius: 6.27,
-
 		elevation: 10,
 	},
 	panelStyle: {
+		backgroundColor: '#000',
 		shadowColor: '#000',
 		shadowOffset: {
 			width: 0,
@@ -121,6 +114,7 @@ const styles = StyleSheet.create({
 		elevation: 5,
 	},
 	sliderStyle: {
+		backgroundColor: '#000',
 		shadowColor: '#000',
 		shadowOffset: {
 			width: 0,

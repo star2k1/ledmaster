@@ -11,6 +11,7 @@ const SERVICE_UUID = '1848';
 const SETUP_CHARACTERISTIC_UUID = '6cf32036-9765-4a72-9bb7-74555500b000';
 const TEXT_CHARACTERISTIC_UUID = '6cf32036-9765-4a72-9bb7-74555500b001';
 const DESIGN_CHARACTERISTIC_UUID = '6cf32036-9765-4a72-9bb7-74555500b002';
+const ANIMATION_CHARACTERISTIC_UUID = '6cf32036-9765-4a72-9bb7-74555500b003';
 
 class BluetoothLeManager {
 	bleManager: BleManager;
@@ -65,33 +66,6 @@ class BluetoothLeManager {
 		}
 	};
 
-	// sendData = async (data: string) => {
-    // // Convert the data to bytes
-    // const dataBytes = Buffer.from(data);
-
-    // // Split the data into 100-byte chunks
-    // const chunkSize = 100;
-	// const chunks = [];
-	// for (let i = 0; i < dataBytes.length; i += chunkSize) {
-    // 	chunks.push(dataBytes.subarray(i, i + chunkSize));
-	// }
-
-    // // Send each chunk
-    // try {
-    //     for (const chunk of chunks) {
-    //         const eData = btoa(chunk.toString());
-    //         await this.bleManager.writeCharacteristicWithResponseForDevice(
-    //             this.device?.id ?? "",
-    //             SERVICE_UUID,
-    //             DESIGN_CHARACTERISTIC_UUID,
-    //             eData
-    //         );
-    //     }
-    // } catch (e) {
-    //     console.log(e);
-    // }
-	// };
-
 	sendAnimation = async (data: string[][][]) => {
 		try {
 			const len = String(data.length).padStart(3, '0');
@@ -102,7 +76,7 @@ class BluetoothLeManager {
 				await this.bleManager.writeCharacteristicWithResponseForDevice(
 					this.device?.id ?? "",
 					SERVICE_UUID,
-					DESIGN_CHARACTERISTIC_UUID,
+					ANIMATION_CHARACTERISTIC_UUID,
 					eData
 				);
 			}
@@ -157,9 +131,9 @@ class BluetoothLeManager {
 	onDataReceived = (
 		error: BleError | null,
 		characteristic: Characteristic | null,
-		emitter: (bleValue: {payload: string | BleError}) => void
+		emitter: (bleValue: {payload: string | BleError}) => void
 	) => {
-		if (error || !characteristic || !characteristic.value) {
+		if (error || !characteristic || !characteristic.value) {
 			console.log("ERROR", error);
 			emitter({ payload: '0' });
 			return;

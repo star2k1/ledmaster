@@ -211,7 +211,7 @@ export default function Layout() {
 		>
 			<Drawer.Screen 
 				name= '(tabs)'
-				options={{ headerShown: false }}
+				options={{ headerShown: false, unmountOnBlur: true }}
 			/>
 			
 		</Drawer>

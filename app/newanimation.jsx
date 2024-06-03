@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity, Text, View, FlatList, Button, Alert, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import DrawingPadGrid from '../components/DrawingPadGrid';
 import ColorPalette from '../components/ColorPalette';
@@ -35,9 +35,9 @@ const styles = StyleSheet.create({
 	scrollBackround: {
 		flex: 1,
 		width: '100%',
-		marginBottom: 10,
 		backgroundColor: 'rgba(0,0,0,0.8)',
-		paddingTop: 10,
+		marginBottom: 20,
+		paddingLeft: 20
 	},	
 	scrollContainer: {
 		alignItems: 'center',
@@ -45,24 +45,30 @@ const styles = StyleSheet.create({
 	listItem: {
 		textAlign: 'center',
 		flexDirection: 'column',
-		marginHorizontal: 5
+		marginHorizontal: 5,
+		padding: 2
+	},
+	listItemSelected: {
+		borderColor: 'dodgerblue',
+		borderWidth: 1
+	},
+	listFrame: {
+		marginTop: 5
 	},
 	footer: {
-		height: 40,
+		height: 35,
 		marginTop: 15,
-		marginBottom: 30,
+		marginBottom: 25,
 		alignItems: 'center',
 		flexDirection: 'row'
 	},
 	frameNumber: {
 		fontFamily: 'Inter-Regular',
-		fontSize: 13,
+		fontSize: 12,
 		textAlign: 'center',
 		color: 'white',
 		paddingTop: 2,
-		paddingBottom: 10
 	}
-
 });
 
 const NewAnimationScreen = () => {
@@ -72,21 +78,13 @@ const NewAnimationScreen = () => {
 	const dispatch = useAppDispatch();
 	const navigation = useNavigation();
 	const { t } = useTranslation();
-	const [orientation, setOrientation] = useState(null);
 	const [isColorPickerVisible, setIsColorPickerVisible] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+	const [selectedFrameIndex, setSelectedFrameIndex] = useState(0);
 	const toggleColorPicker = () => {
 		setIsColorPickerVisible(!isColorPickerVisible);
 	};
 
-	async function changeScreenOrientation() {
-		if (orientationIsLandscape) {
-			await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
-		} else {
-			await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-		}
-		setIsLoading(false);
-	}
 	const onSelectColor = ({ hex }) => {
 		dispatch(setCurrentColor(hex));
 	};
@@ -112,15 +110,20 @@ const NewAnimationScreen = () => {
   		return initialPixelColors;
 	});
 
-	const [animationFrames, setAnimationFrames] = useState([]);
+	const [animationFrames, setAnimationFrames] = useState([toArray(pixelColors)]);
 
 	const handleAddFrame = () => {
 		const isNotBlank = Object.values(pixelColors).some(color => color !== '#000000');
 		if (!isNotBlank) return;
-		setAnimationFrames([...animationFrames, toArray(pixelColors)]);
-		setTimeout(() => {
-			flatListRef.current?.scrollToEnd({ animated: true });
-		}, 10);
+
+		const newFrame = Array.from({ length: MATRIX_COLUMNS }, () => Array(MATRIX_ROWS).fill('#000000'));
+
+		setAnimationFrames(prevFrames => {
+			const updatedFrames = [...prevFrames];
+			updatedFrames[selectedFrameIndex] = toArray(pixelColors);
+			return [...updatedFrames, newFrame];
+		});
+		setSelectedFrameIndex(animationFrames.length);
 		setPixelColors(() => {
 			let newPixelColors = {};
 			for (let i = 0; i < MATRIX_COLUMNS; i++) {
@@ -130,10 +133,16 @@ const NewAnimationScreen = () => {
 			}
 			return newPixelColors;
 		});
+
+		setTimeout(() => {
+			flatListRef.current?.scrollToEnd({ animated: true });
+		}, 10);
 	};
 
-	const onSave = (pixelColors) => {
-		if (animationFrames.length > 1) {
+	const onSave = () => {
+		const isNotBlank = Object.values(pixelColors).some(color => color !== '#000000');
+		if (!isNotBlank) Alert.alert(t('new-design.empty-canvas-message'));
+		else if (animationFrames.length > 1) {
 			dispatch(addToMyAnimations(animationFrames));
 			router.back();
 		} else {
@@ -141,16 +150,7 @@ const NewAnimationScreen = () => {
 		}
 	};
 
-	const toggleOrientation = () => {
-		setOrientation(!orientationIsLandscape);
-		changeScreenOrientation();
-	};
-
 	useEffect(() => {
-		checkOrientation();
-		const subscription = ScreenOrientation.addOrientationChangeListener(
-			handleOrientationChange
-		);
 		navigation.setOptions({
 			headerRight: () => (
 				<Button
@@ -160,22 +160,12 @@ const NewAnimationScreen = () => {
 				/>
 			),
 		});
-		return () => {
-			ScreenOrientation.removeOrientationChangeListeners(subscription);
-		};
 	}), [];
 
-	 const checkOrientation = async () => {
-		const orientation = await ScreenOrientation.getOrientationAsync();
-		setOrientation(orientation);
-	};
 	const changeOrientation = async (newOrientation) => {
 		console.log('newOrientation: ', newOrientation);
 		await ScreenOrientation.lockAsync(newOrientation);
 		setIsLoading(false);
-	};
-	const handleOrientationChange = (o) => {
-		setOrientation(o.orientationInfo.orientation);
 	};
 	
 	useFocusEffect(
@@ -196,15 +186,45 @@ const NewAnimationScreen = () => {
 	const flatListRef = useRef(null);
 
 	const renderItem = ({ item, index }) => (
-		<View style={styles.listItem} key={index}>
-			<BitmapImage 
-				bitmapData={item ? item : []}
-				itemWidth={210}
-			/>
-			<Text style={styles.frameNumber}>{index+1}</Text>
+		<View style={styles.listFrame}>
+			<TouchableOpacity onPress={() => handleFrameSelect(index)}>
+				<View style={[styles.listItem, selectedFrameIndex == index && styles.listItemSelected]} key={index}>
+					<BitmapImage 
+						bitmapData={item ? item : []}
+						itemWidth={155}
+					/>
+				</View>
+				<Text style={styles.frameNumber}>{index+1}</Text>
+			</TouchableOpacity>
 		</View>
 	);
 	const keyExtractor = (item, index) => index.toString();
+
+	const handleFrameSelect = (index) => {
+		setAnimationFrames(prevFrames => {
+			const updatedFrames = [...prevFrames];
+			updatedFrames[selectedFrameIndex] = toArray(pixelColors);
+			return updatedFrames;
+		});
+		setSelectedFrameIndex(index);
+		setPixelColors(() => {
+			const framePixelColors = animationFrames[index];
+			let newPixelColors = {};
+			for (let i = 0; i < MATRIX_COLUMNS; i++) {
+				for (let j = 0; j < MATRIX_ROWS; j++) {
+					newPixelColors[`${i},${j}`] = framePixelColors[i][j];
+				}
+			}
+			return newPixelColors;
+		});
+	};
+
+	 const handlePixelColorsChange = (updatedPixelColors) => {
+		setPixelColors(prevPixelColors => ({
+			...prevPixelColors,
+			...updatedPixelColors
+		}));
+	};
 
 	return (
 		<ScreenTemplate>
@@ -221,7 +241,7 @@ const NewAnimationScreen = () => {
 							showsHorizontalScrollIndicator={false}
 							ListFooterComponent={
 								<TouchableOpacity onPress={handleAddFrame}>
-									<Ionicons name='add' size={30} color='white' style={{marginHorizontal: 10}} />
+									<Ionicons name='add' size={28} color='white' style={{marginHorizontal: 10}} />
 								</TouchableOpacity>
 							}
 						/>
@@ -231,7 +251,7 @@ const NewAnimationScreen = () => {
 							rows={MATRIX_ROWS}
 							columns={MATRIX_COLUMNS}
 							pixelColors={pixelColors}
-							setPixelColors={setPixelColors}
+							onPixelColorsChange={handlePixelColorsChange}
 						/>
 					</View>
 					<View style={styles.footer}>

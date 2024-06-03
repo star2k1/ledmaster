@@ -1,5 +1,6 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import MatrixGrid from '../../../components/CurrentMatrix';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import AnimationList from '../../../components/AnimationList';
@@ -44,6 +45,7 @@ const styles = StyleSheet.create({
 const MyAnimationScreen = () => {
 	const bottomTabBarHeight = useBottomTabBarHeight();
 	const myAnimations = useAppSelector((state) => state.matrix.myAnimations);
+
 	const handleFabPress = () => {
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 		router.navigate('newanimation');
@@ -57,7 +59,7 @@ const MyAnimationScreen = () => {
 				<AnimationList data={myAnimations}/>
 				<FAB
 					icon={() => <Ionicons name='add' color='black' size={25}/>}
-					color='rgba(255,255,255,0.9)'
+					color='rgb(255,255,255)'
 					size='large'
 					onPress={handleFabPress}
 					style={[styles.fab, { bottom: bottomTabBarHeight + 25 }]}

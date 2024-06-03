@@ -33,6 +33,7 @@ export const store = configureStore({
     reducer: persistedReducer,
     middleware: (getDefaultMiddleware) => {
         return getDefaultMiddleware({
+            immutableCheck: false,
             serializableCheck: false
         }).concat(bleMiddleware.middleware);
     },

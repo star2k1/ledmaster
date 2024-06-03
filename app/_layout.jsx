@@ -7,6 +7,7 @@ import { persistor, store } from '../state/store';
 import { useTranslation } from 'react-i18next';
 import { PersistGate } from 'redux-persist/integration/react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { HeaderBackButton } from '@react-navigation/elements';
 
 export default function _layout() {
 	const { t } = useTranslation();
@@ -27,8 +28,12 @@ export default function _layout() {
 							}} />
 							<Stack.Screen name="newdesign" options={{
 								headerBackTitle: t('back'),
+								headerBackButtonMenuEnabled: false,
 								headerTitle: t('create-design'),
 								gestureEnabled: false,
+								headerLeft: () => (
+									<HeaderBackButton label={t('back')}/>
+								),
 								headerRight: () => (
 									<Button
 										title= {t('save')}
@@ -38,6 +43,7 @@ export default function _layout() {
 							}} />
 							<Stack.Screen name="newanimation" options={{
 								headerBackTitle: t('back'),
+								headerBackButtonMenuEnabled: false,
 								headerTitle: t('create-design'),
 								gestureEnabled: false,
 								headerRight: () => (

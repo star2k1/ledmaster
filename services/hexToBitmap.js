@@ -37,9 +37,9 @@ export function hexArrayToString(pixelColors) {
 			const g = parseInt(hex.substring(2, 4), 16);
 			const b = parseInt(hex.substring(4, 6), 16);
 			result +=
-                r.toString(16).padStart(2, '0').charAt(0) +
-                g.toString(16).padStart(2, '0').charAt(0) +
-                b.toString(16).padStart(2, '0').charAt(0);
+                r.toString(16).padStart(2, '0') +
+                g.toString(16).padStart(2, '0') +
+                b.toString(16).padStart(2, '0');
 		}
 	}
 	return result;

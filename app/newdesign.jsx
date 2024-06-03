@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View, Button, Alert } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Button, Alert, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -13,6 +13,7 @@ import ColorPickerModalSmall from '../components/ColorPickerModalSmall';
 import { setCurrentColor } from '../state/Matrix/matrixSlice';
 import * as Haptics from 'expo-haptics';
 import ScreenTemplate from '../components/ScreenTemplate';
+import { HeaderBackButton } from '@react-navigation/elements';
 
 const styles = StyleSheet.create({
 	testView: {
@@ -46,22 +47,15 @@ const NewDesignScreen = () => {
 	const MATRIX_ROWS = 8;
 	const MATRIX_COLUMNS = 32;
 
+	const [isLoading, setIsLoading] = useState(true);
 	const dispatch = useAppDispatch();
 	const navigation = useNavigation();
 	const { t } = useTranslation();
-	const [orientationIsLandscape, setOrientation] = useState(true);
 	const [isColorPickerVisible, setIsColorPickerVisible] = useState(false);
 	const toggleColorPicker = () => {
 		setIsColorPickerVisible(!isColorPickerVisible);
 	};
 
-	async function changeScreenOrientation() {
-		if (orientationIsLandscape) {
-			await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
-		} else {
-			await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-		}
-	}
 	const onSelectColor = ({ hex }) => {
 		dispatch(setCurrentColor(hex));
 	};
@@ -72,22 +66,22 @@ const NewDesignScreen = () => {
 	};
 
 	const [pixelColors, setPixelColors] = useState(() => {
-  		let initialPixelColors = {};
-  		for (let i = 0; i < MATRIX_COLUMNS; i++) {
-    		for (let j = 0; j < MATRIX_ROWS; j++) {
-      			initialPixelColors[`${i},${j}`] = '#000000';
-    		}
-  		}
-  		return initialPixelColors;
+		let initialPixelColors = {};
+		for (let i = 0; i < MATRIX_COLUMNS; i++) {
+			for (let j = 0; j < MATRIX_ROWS; j++) {
+				initialPixelColors[`${i},${j}`] = '#000000';
+			}
+		}
+		return initialPixelColors;
 	});
 
 	const toArray = (pixelColors) => {
 		const pixelColorsArray = [];
 		for (let i = 0; i < MATRIX_COLUMNS; i++) {
-  			pixelColorsArray.push([]);
-  			for (let j = 0; j < MATRIX_ROWS; j++) {
-    			pixelColorsArray[i].push(pixelColors[`${i},${j}`]);
-  			}
+			pixelColorsArray.push([]);
+			for (let j = 0; j < MATRIX_ROWS; j++) {
+				pixelColorsArray[i].push(pixelColors[`${i},${j}`]);
+			}
 		}
 		return pixelColorsArray;
 	};
@@ -96,16 +90,27 @@ const NewDesignScreen = () => {
 		const isNotBlank = Object.values(pixelColors).some(color => color !== '#000000');
 		if (isNotBlank && !pixelColors.length > 0){
 			dispatch(addToMyDesigns(toArray(pixelColors)));
-			router.back();
+			router.back({prevRoute: 'newdesign'});
 		} else {
 			Alert.alert(t('new-design.empty-canvas'), '\n' + t('new-design.empty-canvas-message'));
 		}
 	};
 
-	const toggleOrientation = () => {
-		setOrientation(!orientationIsLandscape);
-		changeScreenOrientation();
+	const changeOrientation = async (newOrientation) => {
+		console.log('newOrientation: ', newOrientation);
+		await ScreenOrientation.lockAsync(newOrientation);
+		setIsLoading(false);
 	};
+	
+	useFocusEffect(
+		React.useCallback(() => {
+			setIsLoading(true);
+			changeOrientation(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
+			return async () => {
+				await changeOrientation(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+			};
+		}, [])
+	);
 
 	useEffect(() => {
 		navigation.setOptions({
@@ -116,57 +121,62 @@ const NewDesignScreen = () => {
 					onPress={() => onSave(pixelColors)}
 				/>
 			),
+			headerLeft: () => (
+				<HeaderBackButton 
+					label= {t('back')}
+					onPress={() => [setIsLoading(true), router.back('mydesigns', {params: 'newdesign'})]}
+				/>
+			)
 		});
 	}), [navigation];
-	
-	useFocusEffect(
-		React.useCallback(() => {
-			toggleOrientation();
-			return async () => {
-				await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-			};
-		}, [])
-	);
+
+	const handlePixelColorsChange = (updatedPixelColors) => {
+		setPixelColors(prevPixelColors => ({
+			...prevPixelColors,
+			...updatedPixelColors
+		}));
+	};
 
 	return (
 		<ScreenTemplate>
-			<View style={styles.testView}>
-				<View style={styles.header}></View>
-				<DrawingPadGrid
-					rows={MATRIX_ROWS}
-					columns={MATRIX_COLUMNS}
-					pixelColors={pixelColors}
-					setPixelColors={setPixelColors}
-				/>
-				<View style={styles.footer}>
-					<TouchableOpacity
-						onPress={handleEraser}
-						style={{marginRight: 10}}
-					>
-						<FontAwesome6
-							name='eraser'
-							size={35}
-							color='rgba(0,0,0,0.8)'
-						/>
-					</TouchableOpacity>
-					<TouchableOpacity
-						onPress={toggleColorPicker}
-						style={{marginRight: 10}}
-					>
-						<Ionicons
-							name={'color-palette'}
-							size={35}
-							color='white'
-						/>
-					</TouchableOpacity>
-					<ColorPalette />
-				</View>
-				<ColorPickerModalSmall
-					visible={isColorPickerVisible}
-					onSelectColor={onSelectColor}
-					onClose={() => toggleColorPicker()}
-				/>
-			</View>
+			{isLoading ? (<View><ActivityIndicator size={'large'}/></View>) :
+				(<View style={styles.testView}>
+					<View style={styles.header}></View>
+					<DrawingPadGrid
+						rows={MATRIX_ROWS}
+						columns={MATRIX_COLUMNS}
+						pixelColors={pixelColors}
+						onPixelColorsChange={handlePixelColorsChange}
+					/>
+					<View style={styles.footer}>
+						<TouchableOpacity
+							onPress={handleEraser}
+							style={{marginRight: 10}}
+						>
+							<FontAwesome6
+								name='eraser'
+								size={35}
+								color='rgba(0,0,0,0.8)'
+							/>
+						</TouchableOpacity>
+						<TouchableOpacity
+							onPress={toggleColorPicker}
+							style={{marginRight: 10}}
+						>
+							<Ionicons
+								name={'color-palette'}
+								size={35}
+								color='white'
+							/>
+						</TouchableOpacity>
+						<ColorPalette />
+					</View>
+					<ColorPickerModalSmall
+						visible={isColorPickerVisible}
+						onSelectColor={onSelectColor}
+						onClose={() => toggleColorPicker()}
+					/>
+				</View>)}
 		</ScreenTemplate>
 	);
 };

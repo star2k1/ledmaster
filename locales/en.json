@@ -31,7 +31,7 @@
     },
     "new-design": {
         "empty-canvas": "Empty canvas",
-        "empty-canvas-message": "Please create a design before saving"
+        "empty-canvas-message": "An empty canvas cannot be saved"
     },
     "new-animation": {
         "not-enough-frames": "Please add more frames"
