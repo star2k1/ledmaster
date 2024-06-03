@@ -34,7 +34,8 @@ Prerequisites:
     - BLE2902
 
 1. Clone controller repository into VSCode
-2. Compile and upload the code to the ESP32 using PlatformIO
+2. Modify selected board's platformio configuration file to use supplied partitions.csv
+3. Compile and upload the code to the ESP32 using PlatformIO
     
 ## License
 
