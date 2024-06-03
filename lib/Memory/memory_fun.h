@@ -8,7 +8,6 @@ extern Preferences prefs;
 class MemoryFunctions {
 
     private:
-        const char* prefName;
         String serializeVector(const std::vector<String>& animation);
         std::vector<String> deserializeVector(const String& serAnimation);
 
@@ -30,4 +29,5 @@ class MemoryFunctions {
 
         std::vector<String> getAnimation();
         void saveAnimation(std::vector<String> animationData);
+
 };

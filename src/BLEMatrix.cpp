@@ -17,7 +17,7 @@ bool scrollText = false;
 std::vector<String> animationBuf;
 std::vector<String> animationData;
 unsigned long prevAnimationMillis = 0;
-unsigned long animationInterval = 200;
+unsigned long animationInterval = 250;
 String lastText;
 String lastDesign;
 unsigned long prevPoliceMillis = 0;
@@ -58,7 +58,7 @@ uint32_t value = 0;
 int pixelPerChar = 6; // Width of Standard Font Characters is 8X6 Pixels
 int x = matrix.width(); // Width of the Display
 unsigned long prevTextMillis = 0;
-unsigned long scrollInterval = 50; // Interval between updates in milliseconds
+unsigned long scrollInterval = 55; // Interval between updates in milliseconds
 
 void setScrollingText() {
   matrixOn = true;
@@ -112,9 +112,9 @@ void stringToBitmap(String receivedData) {
   memset(bitmap, 0, MATRIX_WIDTH * MATRIX_HEIGHT * sizeof(uint16_t));
   size_t bitmapIndex = 0;
   // Iterate through the received data to extract color values
-  for (size_t i = 0; i < receivedData.length(); i += 3) {
-    String pixelColorStr = receivedData.substring(i, i + 3); // Extract color string
-    uint16_t pixelColor = parseShortHexColor(pixelColorStr); // Parse color string to uint16_t
+  for (size_t i = 0; i < receivedData.length(); i += 6) {
+    String pixelColorStr = receivedData.substring(i, i + 6); // Extract color string
+    uint16_t pixelColor = parseHexColor(pixelColorStr); // Parse color string to uint16_t
     bitmap[bitmapIndex++] = pixelColor; // Store color in bitmap array
   }
   matrix.drawRGBBitmap(0, 0, bitmap, MATRIX_WIDTH, MATRIX_HEIGHT);
@@ -129,30 +129,11 @@ void setMatrixDesign(String receivedData) {
   stringToBitmap(receivedData);
 }
 
-uint16_t parseShortHexColor(String colorStr) {
-  // Convert RGB color string to RRGGBB format
-  String rStr = String(colorStr[0]) + colorStr[0];
-  String gStr = String(colorStr[1]) + colorStr[1];
-  String bStr = String(colorStr[2]) + colorStr[2];
-
-  // Convert hex color string to uint16_t RGB565 color value
-  uint16_t r = strtol(rStr.c_str(), NULL, 16);
-  uint16_t g = strtol(gStr.c_str(), NULL, 16);
-  uint16_t b = strtol(bStr.c_str(), NULL, 16);
-
-  return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
-}
-
 uint16_t parseHexColor(String colorStr) {
-  // Convert RGB color string to RRGGBB format
-  String rStr = colorStr.substring(0,2);
-  String gStr = colorStr.substring(2,4);
-  String bStr = colorStr.substring(4,6);;
-
   // Convert hex color string to uint16_t RGB565 color value
-  uint16_t r = strtol(rStr.c_str(), NULL, 16);
-  uint16_t g = strtol(gStr.c_str(), NULL, 16);
-  uint16_t b = strtol(bStr.c_str(), NULL, 16);
+  uint16_t r = strtol(colorStr.substring(0,2).c_str(), NULL, 16);
+  uint16_t g = strtol(colorStr.substring(2,4).c_str(), NULL, 16);
+  uint16_t b = strtol(colorStr.substring(4,6).c_str(), NULL, 16);
 
   return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
 }
@@ -329,7 +310,7 @@ void MyDesignCallbacks::onWrite(BLECharacteristic *pDesignCharacteristic) {
   memfuncs->saveAnimationStatus(displayAnimation);
   memfuncs->saveScrollStatus(scrollText);
   String receivedValue = String(pDesignCharacteristic->getValue().c_str());
-  if (receivedValue.length() > 0 && receivedValue.length() % 3 == 0) {
+  if (receivedValue.length() > 0 && receivedValue.length() % 6 == 0) {
     animationData.clear();
     scrollText = false;
     setMatrixDesign(receivedValue);
@@ -409,7 +390,7 @@ void setup() {
   currentDisplayType = memfuncs->getCurrentDisplayType();
   scrollText = memfuncs->getScrollStatus();
   displayAnimation = memfuncs->getAnimationStatus();
-  if (displayAnimation) memfuncs->getAnimation();
+  if (displayAnimation) animationData = memfuncs->getAnimation();
   Serial.begin(115200);
   while(!Serial && millis()<5000) { /* wait for serial connect, for up to 5 sec */ }
   printInfo();
