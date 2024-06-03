@@ -27,7 +27,8 @@
     },
     "my-animations": {
         "title": "Minu animatsioonid",
-        "missing": "No animations currently created. Tap on the plus to create one!"
+        "missing": "No animations currently created. Tap on the plus to create one!",
+        "animation-sending": "Saadan animatsiooni..."
     },
     "new-design": {
         "empty-canvas": "Kujundus puudub",
@@ -36,6 +37,7 @@
     "new-animation": {
         "not-enough-frames": "Palun lisage rohkem kaadreid"
     },
+    "no-device-connected": "Seade pole ühendatud",
     "no-more-devices": "Rohkem seadmeid ei leitud",
     "not-connected": "Pole ühendatud",
     "or": "või",

@@ -27,7 +27,8 @@
     },
     "my-animations": {
         "title": "My animations",
-        "missing": "No animations currently created. Tap on the plus to create one!"
+        "missing": "No animations currently created. Tap on the plus to create one!",
+        "animation-sending": "Sending animation..."
     },
     "new-design": {
         "empty-canvas": "Empty canvas",
@@ -37,6 +38,7 @@
         "not-enough-frames": "Please add more frames"
     },
     "no-more-devices": "No more devices found",
+    "no-device-connected": "No device connected",
     "not-connected": "Not connected",
     "or": "or",
     "sample-message": "Write a message...",

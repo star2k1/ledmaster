@@ -37,9 +37,18 @@ const AlertService = (t = null) => {
 		);
 	};
 
+	const showNoDeviceAlert = () => {
+		Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+		const message = t ? (t('no-device-connected')) : ('No device connected!');
+		return Alert.alert(
+			message, null, null
+		);
+	};
+
 	return {
 		showBluetoothAlert,
-		showDisconnectAlert
+		showDisconnectAlert,
+		showNoDeviceAlert
 	};
 };
 

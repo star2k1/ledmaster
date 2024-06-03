@@ -1,15 +1,15 @@
 import { FlatList, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import BitmapImage from './DesignPreview';
 import { useTranslation } from 'react-i18next';
-import { hexArrayToString } from '../services/hexToBitmap';
 import { useDispatch } from 'react-redux';
 import { sendAnimationToDevice } from '../state/BluetoothLE/listener';
 import { setCurrentAnimation } from '../state/Matrix/matrixSlice';
 import { useAppSelector } from '../state/store';
 import AlertService from '../services/AlertService';
 import AnimationPreview from './AnimationPreview';
+import AnimationLoadingModal from './AnimationLoadingModal';
+import * as Haptics from 'expo-haptics';
 
 export default function AnimationList({ data }) {
 	const { t } = useTranslation();
@@ -18,13 +18,9 @@ export default function AnimationList({ data }) {
 	const bluetoothEnabled = useAppSelector(state => (state.ble.bluetoothEnabled));
 	const connectedDevice = useAppSelector(state => (state.ble.connectedDevice));
 	const listItemWidth = Dimensions.get('window').width / 2.05;
+	const [isLoading, setIsLoading] = useState(false);
 
 	const bitmapItem = ({ item }) => (
-		// <TouchableOpacity onPress={() => sendPixels(item)}>
-		// 	<View style={styles.itemContainer}>
-		// 		<AnimationPreview animationData={item} itemWidth={listItemWidth} frameDelay={500}/>
-		// 	</View>
-		// </TouchableOpacity>
 		<TouchableOpacity onPress={() => sendAnimation(item)}>
 			<View style={styles.itemContainer}>
 				<AnimationPreview animationData={item} itemWidth={listItemWidth} frameDelay={300}/>
@@ -32,29 +28,24 @@ export default function AnimationList({ data }) {
 		</TouchableOpacity>
 	);
 
-	// const padInteger = (number) => {
-	// 	return (number !== 0 && number <= 100) ? String(number).padStart(3, '0') : '001';
-	// };
-	const sendAnimation = (animation) => {
+	const sendAnimation = async (animation) => {
 		if (!bluetoothEnabled) myAlerts.showBluetoothAlert();
-		else if (!connectedDevice) console.log('No device!');
+		else if (!connectedDevice) myAlerts.showNoDeviceAlert();
 		else {
-			dispatch(sendAnimationToDevice(animation));
-			dispatch(setCurrentAnimation(animation));
+			Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+			setIsLoading(true);
+			dispatch(sendAnimationToDevice(animation))
+				.then(() => {
+					dispatch(setCurrentAnimation(animation));
+					setIsLoading(false);
+				})
+				.catch((error) => {
+					console.error('Error dispatching animation:', error);
+					setIsLoading(false);
+				});
 		}
 	};
 
-	// const sendPixels = (pixelColors) => {
-	// 	console.log(hexArrayToString(pixelColors));
-	// 	if (!bluetoothEnabled) myAlerts.showBluetoothAlert();
-	// 	else if (!connectedDevice) console.log('No device!');
-	// 	else {
-	// 		dispatch(sendDesignToDevice(padInteger(1) + hexArrayToString(pixelColors)));
-	// 		dispatch(setCurrentDesign(pixelColors));
-	// 	}
-	// 	dispatch(sendDataToDevice(hexArrayToBitmap(pixelColors).toString()));
-	// 	console.log('Value sent', hexArrayToBitmap(pixelColors));
-	// };
 	const bottomTabBarHeight = useBottomTabBarHeight();
 	return (
 		<View style={[styles.container, {paddingBottom: bottomTabBarHeight}]}>
@@ -70,7 +61,9 @@ export default function AnimationList({ data }) {
 					numColumns={2}
 				/>
 			)}
+			<AnimationLoadingModal visible={isLoading}/>
 		</View>
+		
 	);
 }
 

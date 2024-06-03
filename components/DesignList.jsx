@@ -17,7 +17,6 @@ export default function DesignList({ data }) {
 	const bluetoothEnabled = useAppSelector(state => (state.ble.bluetoothEnabled));
 	const connectedDevice = useAppSelector(state => (state.ble.connectedDevice));
 	const listItemWidth = Dimensions.get('window').width / 2.05;
-	const matrixState = useAppSelector(state => (state.matrix.isOn));
 
 	const bitmapItem = ({ item }) => (
 		<TouchableOpacity onPress={() => sendPixels(item)}>
@@ -28,16 +27,12 @@ export default function DesignList({ data }) {
 	);
 
 	const sendPixels = (pixelColors) => {
-		//console.log(hexArrayToString(pixelColors));
 		if (!bluetoothEnabled) myAlerts.showBluetoothAlert();
 		else if (!connectedDevice) console.log('No device!');
-		//else if (!matrixState) console.error("Device is off");
 		else {
 			dispatch(sendDesignToDevice(hexArrayToString(pixelColors)));
 			dispatch(setCurrentDesign(pixelColors));
 		}
-		// dispatch(sendDataToDevice(hexArrayToBitmap(pixelColors).toString()));
-		// console.log('Value sent', hexArrayToBitmap(pixelColors));
 	};
 	const bottomTabBarHeight = useBottomTabBarHeight();
 	return (
