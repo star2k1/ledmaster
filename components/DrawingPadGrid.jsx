@@ -1,10 +1,9 @@
 import { Dimensions } from 'react-native';
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useMemo } from 'react';
 import { Canvas } from '@shopify/react-native-skia';
 import { RoundedItem } from './RoundedItem';
 import { useAppSelector } from '../state/store';
 import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
 
 const DrawingPadGrid = ({ rows, columns, pixelColors, onPixelColorsChange }) => {
 	const { width: portraitWidth, height: portraitHeight } = Dimensions.get('window');
@@ -23,45 +22,55 @@ const DrawingPadGrid = ({ rows, columns, pixelColors, onPixelColorsChange }) => 
 	const brushColor = useAppSelector(state => state.matrix.color);
 	const brushColorRef = useRef(brushColor);
 	brushColorRef.current = brushColor;
-	const lastPixel = useRef(null);
-
 	const [tempPixelColors, setTempPixelColors] = useState({});
 
 	const drawPixel = useCallback((x, y) => {
 		const i = Math.floor(x / CONTAINER_SIZE);
 		const j = Math.floor(y / CONTAINER_SIZE);
 		const pixelKey = `${i},${j}`;
-		if (i >= 0 && i < N_PIXEL_HORIZONTAL && j >= 0 && j < N_PIXEL_VERTICAL && lastPixel.current !== pixelKey) {
+		if (i >= 0 && i < N_PIXEL_HORIZONTAL && j >= 0 && j < N_PIXEL_VERTICAL) {
 			setTempPixelColors(prevTempPixelColors => ({
 				...prevTempPixelColors,
 				[pixelKey]: brushColorRef.current,
 			}));
-			lastPixel.current = pixelKey;
 		}
 	}, [N_PIXEL_HORIZONTAL, N_PIXEL_VERTICAL, CONTAINER_SIZE]);
 
 	const applyChanges = useCallback(() => {
-		onPixelColorsChange(tempPixelColors);
-		//setTempPixelColors({}); // Reset tempPixelColors after applying changes
-		lastPixel.current = null;
+		const updatedPixelColors = {
+			...pixelColors, // Include existing pixel colors
+			...tempPixelColors, // Include updated pixels
+		};
+		for (let i = 0; i < N_PIXEL_HORIZONTAL; i++) {
+			for (let j = 0; j < N_PIXEL_VERTICAL; j++) {
+				const pixelKey = `${i},${j}`;
+				if (!(pixelKey in updatedPixelColors)) {
+					updatedPixelColors[pixelKey] = '#000000'; // Set to initial color if not present
+				}
+			}
+		}
+
+		onPixelColorsChange(updatedPixelColors); 
 	}, [tempPixelColors, onPixelColorsChange]);
 
-	const gesture = Gesture.Race(Gesture.Pan()
-		.onStart((e) => {
-			runOnJS(drawPixel)(e.x, e.y);
-		})
-		.onUpdate((e) => {
-			runOnJS(drawPixel)(e.x, e.y);
-		})
-		.onEnd(() => {
-			runOnJS(applyChanges)();
-		}),
-	Gesture.Tap()
-		.onStart((e) => {
-			runOnJS(drawPixel)(e.x, e.y);
-			runOnJS(applyChanges)();
-		})
-	);
+	const gesture = useMemo(() =>
+		Gesture.Simultaneous(
+			Gesture.Pan()
+				.minDistance(1)
+				.runOnJS(true)
+				.onUpdate((e) => {
+					drawPixel(e.x, e.y);
+				})
+				.onEnd(() => {
+					applyChanges();
+				}),
+			Gesture.Tap()
+				.runOnJS(true)
+				.onEnd((e) => {
+					drawPixel(e.x, e.y);
+					applyChanges();
+				})
+		), [drawPixel, applyChanges]);
 
 	return (
 		<GestureHandlerRootView>

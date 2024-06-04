@@ -1,12 +1,13 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import BitmapImage from './DesignPreview';
 import { useAppSelector } from '../state/store';
 
 const MatrixGrid = () => {
 	const currentDesign = useAppSelector(state => (state.matrix.currentMatrix));
+	const portraitWidth = useAppSelector(state => (state.device.portraitWidth));
 	const margin = 24;
-	const itemWidth = Dimensions.get('window').width-margin;
+	const itemWidth = portraitWidth-margin;
 
 	return (
 		<TouchableOpacity>

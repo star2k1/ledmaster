@@ -51,10 +51,10 @@ const styles = StyleSheet.create({
 const TextScreen = () => {
 	const { t } = useTranslation();
 	const bottomTabBarHeight = useBottomTabBarHeight();
-	const screenWidth = useAppSelector(state => (state.device.screenWidth));
 	const [text, setText] = useState('');
 	const textColor = useAppSelector(state => (state.matrix.color));
 	const dispatch = useAppDispatch();
+	const deviceConnected = useAppSelector(state => (state.ble.connectedDevice));
 	const onChangeText = (inputText) => {
 		setText(inputText);
 	};
@@ -83,7 +83,8 @@ const TextScreen = () => {
 								backgroundColor: 'rgba(0,0,0,0.6)',
 								borderRadius: 14,
 								paddingVertical: 11,
-								paddingHorizontal: 12,
+								paddingLeft: 12,
+								paddingRight: 46,
 								fontFamily: 'Inter-Regular',
 								color: textColor,
 								fontSize: 16,
@@ -96,7 +97,7 @@ const TextScreen = () => {
 						/>
 						<View style={styles.sendButton}>
 							<TouchableOpacity
-								disabled={!text}
+								disabled={!text || !deviceConnected}
 								onPress={() => handleButtonPress()}
 							>
 								<Ionicons

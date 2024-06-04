@@ -3,11 +3,30 @@ import { Dimensions } from "react-native";
 
 interface DeviceState {
     orientation: string,
+    portraitWidth: number,
+    portraitHeight: number
 }
 
-const initialState: DeviceState = {
-    orientation: 'portrait',
-}
+const initializeDimensions = () => {
+    const { width, height } = Dimensions.get('window');
+    let portraitWidth:number, portraitHeight:number;
+
+    if (width < height) {
+        portraitWidth = width;
+        portraitHeight = height;
+    } else {
+        portraitWidth = height;
+        portraitHeight = width;
+    }
+
+    return {
+        orientation: 'portrait',
+        portraitWidth,
+        portraitHeight
+    };
+};
+
+const initialState: DeviceState = initializeDimensions();
 
 const deviceSlice = createSlice({
     name: "device",

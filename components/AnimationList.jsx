@@ -10,6 +10,7 @@ import AlertService from '../services/AlertService';
 import AnimationPreview from './AnimationPreview';
 import AnimationLoadingModal from './AnimationLoadingModal';
 import * as Haptics from 'expo-haptics';
+import { GestureDetector } from 'react-native-gesture-handler';
 
 export default function AnimationList({ data }) {
 	const { t } = useTranslation();
@@ -17,7 +18,8 @@ export default function AnimationList({ data }) {
 	const dispatch = useDispatch();
 	const bluetoothEnabled = useAppSelector(state => (state.ble.bluetoothEnabled));
 	const connectedDevice = useAppSelector(state => (state.ble.connectedDevice));
-	const listItemWidth = Dimensions.get('window').width / 2.05;
+	const portraitWidth = useAppSelector(state => (state.device.portraitWidth));
+	const listItemWidth = portraitWidth / 2.05;
 	const [isLoading, setIsLoading] = useState(false);
 
 	const bitmapItem = ({ item }) => (

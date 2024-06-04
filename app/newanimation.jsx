@@ -1,11 +1,12 @@
-import { StyleSheet, TouchableOpacity, Text, View, FlatList, Button, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Button, Alert, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useFocusEffect } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import DrawingPadGrid from '../components/DrawingPadGrid';
 import ColorPalette from '../components/ColorPalette';
 import { useAppDispatch } from '../state/store';
-import { useNavigation, router } from 'expo-router';
+import { useNavigation, router, Link } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { addToMyAnimations } from '../state/Matrix/matrixSlice';
 import { Ionicons, FontAwesome6 } from '@expo/vector-icons';
@@ -14,7 +15,7 @@ import { setCurrentColor } from '../state/Matrix/matrixSlice';
 import * as Haptics from 'expo-haptics';
 import ScreenTemplate from '../components/ScreenTemplate';
 import BitmapImage from '../components/DesignPreview';
-
+import { HeaderBackButton } from '@react-navigation/elements';
 
 const styles = StyleSheet.create({
 	test: {
@@ -110,17 +111,19 @@ const NewAnimationScreen = () => {
   		return initialPixelColors;
 	});
 
+	const pixelColorsRef = useRef(pixelColors);
+
 	const [animationFrames, setAnimationFrames] = useState([toArray(pixelColors)]);
 
 	const handleAddFrame = () => {
-		const isNotBlank = Object.values(pixelColors).some(color => color !== '#000000');
+		const isNotBlank = Object.values(pixelColorsRef.current).some(color => color !== '#000000');
 		if (!isNotBlank) return;
 
 		const newFrame = Array.from({ length: MATRIX_COLUMNS }, () => Array(MATRIX_ROWS).fill('#000000'));
 
 		setAnimationFrames(prevFrames => {
 			const updatedFrames = [...prevFrames];
-			updatedFrames[selectedFrameIndex] = toArray(pixelColors);
+			updatedFrames[selectedFrameIndex] = toArray(pixelColorsRef.current);
 			return [...updatedFrames, newFrame];
 		});
 		setSelectedFrameIndex(animationFrames.length);
@@ -131,12 +134,8 @@ const NewAnimationScreen = () => {
 					newPixelColors[`${i},${j}`] = '#000000';
 				}
 			}
-			return newPixelColors;
+			return { ...newPixelColors };
 		});
-
-		setTimeout(() => {
-			flatListRef.current?.scrollToEnd({ animated: true });
-		}, 10);
 	};
 
 	const onSave = () => {
@@ -144,7 +143,7 @@ const NewAnimationScreen = () => {
 		if (!isNotBlank) Alert.alert(t('new-design.empty-canvas-message'));
 		else if (animationFrames.length > 1) {
 			dispatch(addToMyAnimations(animationFrames));
-			router.back();
+			router.navigate('/(drawer)/(tabs)/animations');
 		} else {
 			Alert.alert(t('new-animation.not-enough-frames'));
 		}
@@ -159,11 +158,22 @@ const NewAnimationScreen = () => {
 					onPress={() => onSave(pixelColors)}
 				/>
 			),
+			headerLeft: () => (
+				<Link href="/(drawer)/(tabs)/myanimations">
+					<HeaderBackButton
+						label={t('back')}
+						onPress={() => router.navigate('myanimations')}
+					/>
+				</Link>
+			)
 		});
 	}), [];
 
+	useEffect(() => {
+		pixelColorsRef.current = pixelColors;
+	}, [pixelColors]);
+
 	const changeOrientation = async (newOrientation) => {
-		console.log('newOrientation: ', newOrientation);
 		await ScreenOrientation.lockAsync(newOrientation);
 		setIsLoading(false);
 	};
@@ -201,34 +211,31 @@ const NewAnimationScreen = () => {
 	const keyExtractor = (item, index) => index.toString();
 
 	const handleFrameSelect = (index) => {
-		setAnimationFrames(prevFrames => {
-			const updatedFrames = [...prevFrames];
-			updatedFrames[selectedFrameIndex] = toArray(pixelColors);
-			return updatedFrames;
-		});
 		setSelectedFrameIndex(index);
 		setPixelColors(() => {
 			const framePixelColors = animationFrames[index];
-			let newPixelColors = {};
-			for (let i = 0; i < MATRIX_COLUMNS; i++) {
-				for (let j = 0; j < MATRIX_ROWS; j++) {
-					newPixelColors[`${i},${j}`] = framePixelColors[i][j];
-				}
-			}
-			return newPixelColors;
+			return framePixelColors;
 		});
 	};
 
-	 const handlePixelColorsChange = (updatedPixelColors) => {
-		setPixelColors(prevPixelColors => ({
-			...prevPixelColors,
-			...updatedPixelColors
-		}));
+	const handlePixelColorsChange = (updatedPixelColors) => {
+		setPixelColors((prevPixelColors) => {
+			const newPixelColors = {
+				...prevPixelColors,
+				...updatedPixelColors
+			};
+			return newPixelColors;
+		});
+		setAnimationFrames((prevFrames) => {
+			const updatedFrames = [...prevFrames];
+			updatedFrames[selectedFrameIndex] = toArray(updatedPixelColors);
+			return updatedFrames;
+		});
 	};
 
 	return (
 		<ScreenTemplate>
-			{isLoading ? (<View><ActivityIndicator size={'large'}/></View>) : (
+			{isLoading ? (<View><ActivityIndicator size={'large'} /></View>) : (
 				<View style={styles.testView}>
 					<View style={styles.scrollBackround}>
 						<FlatList
@@ -252,6 +259,7 @@ const NewAnimationScreen = () => {
 							columns={MATRIX_COLUMNS}
 							pixelColors={pixelColors}
 							onPixelColorsChange={handlePixelColorsChange}
+							setPixelColors={setPixelColors}
 						/>
 					</View>
 					<View style={styles.footer}>
@@ -282,7 +290,7 @@ const NewAnimationScreen = () => {
 						onSelectColor={onSelectColor}
 						onClose={() => toggleColorPicker()}
 					/>
-				</View> )}
+				</View>)}
 		</ScreenTemplate>
 	);
 };

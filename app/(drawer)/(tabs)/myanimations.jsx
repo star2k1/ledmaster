@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import { useFocusEffect } from 'expo-router';
-import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import MatrixGrid from '../../../components/CurrentMatrix';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import AnimationList from '../../../components/AnimationList';
-import { useAppSelector } from '../../../state/store';
+import { useAppDispatch, useAppSelector } from '../../../state/store';
 import { FAB } from '@rneui/themed';
 import { router } from 'expo-router';
 import ScreenTemplate from '../../../components/ScreenTemplate';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { useFocusEffect } from 'expo-router';
+import { resetState } from '../../../state/Matrix/matrixSlice';
 
 const styles = StyleSheet.create({
 	container: {
@@ -45,14 +46,23 @@ const styles = StyleSheet.create({
 const MyAnimationScreen = () => {
 	const bottomTabBarHeight = useBottomTabBarHeight();
 	const myAnimations = useAppSelector((state) => state.matrix.myAnimations);
+	const [isVisible, setIsVisible] = useState(true);
+	const dispatch = useAppDispatch();
+	useFocusEffect(
+		useCallback(() => {
+			setIsVisible(true);
+		}, [])
+	);
 
 	const handleFabPress = () => {
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+		setIsVisible(false);
+		//dispatch(resetState());
 		router.navigate('newanimation');
 	};
 	return(
 		<ScreenTemplate>
-			<View style={[ styles.container ]}>
+			{isVisible && <View style={[ styles.container ]}>
 				<View style={styles.headerContainer}>
 					<MatrixGrid/>
 				</View>
@@ -64,7 +74,7 @@ const MyAnimationScreen = () => {
 					onPress={handleFabPress}
 					style={[styles.fab, { bottom: bottomTabBarHeight + 25 }]}
 				/>
-			</View>
+			</View>}
 		</ScreenTemplate>
 	);
 };

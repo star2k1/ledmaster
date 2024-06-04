@@ -90,14 +90,13 @@ const NewDesignScreen = () => {
 		const isNotBlank = Object.values(pixelColors).some(color => color !== '#000000');
 		if (isNotBlank && !pixelColors.length > 0){
 			dispatch(addToMyDesigns(toArray(pixelColors)));
-			router.back({prevRoute: 'newdesign'});
+			router.back();
 		} else {
 			Alert.alert(t('new-design.empty-canvas'), '\n' + t('new-design.empty-canvas-message'));
 		}
 	};
 
 	const changeOrientation = async (newOrientation) => {
-		console.log('newOrientation: ', newOrientation);
 		await ScreenOrientation.lockAsync(newOrientation);
 		setIsLoading(false);
 	};
@@ -124,7 +123,7 @@ const NewDesignScreen = () => {
 			headerLeft: () => (
 				<HeaderBackButton 
 					label= {t('back')}
-					onPress={() => [setIsLoading(true), router.back('mydesigns', {params: 'newdesign'})]}
+					onPress={() => router.back()}
 				/>
 			)
 		});

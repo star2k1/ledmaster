@@ -93,7 +93,6 @@ const styles = StyleSheet.create({
 });
 
 const HomeScreen = () => {
-	
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const bluetoothState = useAppSelector(state => (state.ble.bluetoothEnabled));

@@ -19,7 +19,6 @@ const MyTopTabsLayout = () => {
 	const { t } = useTranslation();
 	return (
 		<TopTabs.Navigator
-			initialRouteName='myanimations'
 			screenOptions={{
 				tabBarLabelStyle: {
 					fontFamily: 'Inter-Regular'
@@ -34,18 +33,17 @@ const MyTopTabsLayout = () => {
 			}}
 		>
 			<TopTabs.Screen
-				name= 'animations'
+				name= 'myanimations'
 				component={MyAnimationScreen}
 				options = {{ 
 					headerStyle: { backgroundColor: 'transparent' },
 					tabBarLabel: t('animations'),
-					unmountOnBlur: true
 				}}
 			/>
 			<TopTabs.Screen
-				name= 'designs' 
+				name= 'myvisuals' 
 				component={MyDesignScreen}
-				options = {{ tabBarLabel: t('visuals'), unmountOnBlur: true}}
+				options = {{ tabBarLabel: t('visuals')}}
 			/>
 		</TopTabs.Navigator>
 	);
@@ -55,8 +53,9 @@ const TopTabsLayout = () => {
 	const { t } = useTranslation();
 	return (
 		<TopTabs.Navigator
-			initialRouteName='animations'
 			screenOptions={{
+				tabBarContentContainerStyle: {shadowOpacity: 0},
+				tabBarIndicatorContainerStyle: {shadowOpacity: 0},
 				tabBarLabelStyle: {
 					fontFamily: 'Inter-Regular'
 				},
@@ -74,12 +73,12 @@ const TopTabsLayout = () => {
 			<TopTabs.Screen
 				name= 'animations'
 				component={AnimationScreen}
-				options = {{ tabBarLabel: t('animations'), unmountOnBlur: true}}
+				options = {{ tabBarLabel: t('animations')}}
 			/>
 			<TopTabs.Screen
-				name= 'designs' 
+				name= 'visuals' 
 				component={PresetScreen}
-				options = {{ tabBarLabel: t('visuals'), unmountOnBlur: true}}
+				options = {{ tabBarLabel: t('visuals')}}
 			/>
 		</TopTabs.Navigator>
 	);
@@ -87,14 +86,14 @@ const TopTabsLayout = () => {
 
 const Tabs = createBottomTabNavigator();
 
-const TabsLayout = () => {
+export default function Layout() {
 	const { t } = useTranslation();
 	const navigation = useNavigation();
 
 	return (
 		<Tabs.Navigator 
 			screenOptions={{
-				freezeOnBlur: true,
+				headerShadowVisible: false,
 				tabBarHideOnKeyboard: true,
 				tabBarStyle: {
 					position: 'absolute',
@@ -146,37 +145,35 @@ const TabsLayout = () => {
 				name="presets"
 				component={TopTabsLayout}
 				options={{
+					headerShadowVisible: false,
 					title: t('designs'),
 					tabBarIcon: ({focused, color}) => (
 						<Ionicons name={ focused ? 'albums' : 'albums-outline'} size={32} color={color} />
 					),
 					tabBarActiveTintColor: 'dodgerblue',
-					unmountOnBlur: true
 				}}/>
 			<Tabs.Screen 
 				name="text"
 				component={TextScreen}
 				options={{
+					headerShadowVisible: false,
 					title: t('text'),
 					tabBarIcon: ({ focused, color }) => (
 						<Ionicons name={ focused ? 'text' : 'text-outline'} size={30} color={color} />
 					),
 					tabBarActiveTintColor: 'dodgerblue',
-					unmountOnBlur: true
 				}} />
 			<Tabs.Screen 
 				name="mydesigns"
 				component={MyTopTabsLayout}
 				options={{
+					headerShadowVisible: false,
 					title: t('my-designs.title'),
 					tabBarIcon: ({focused, color}) => (
 						<Ionicons name={ focused ? 'flame' : 'flame-outline'} size={32} color={color}/>
 					),
 					tabBarActiveTintColor: 'dodgerblue',
-					unmountOnBlur: true
 				}} />
 		</Tabs.Navigator>
 	);
-};
-
-export default TabsLayout;
+}

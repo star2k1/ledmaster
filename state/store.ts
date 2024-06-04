@@ -18,7 +18,7 @@ const appPersistConfig = {
 const matrixPersistConfig = {
     key:'matrix',
     storage: storage,
-    blacklist: ['color']
+    blacklist: ['color', 'pixelColors']
 };
 
 const appReducer = combineReducers({

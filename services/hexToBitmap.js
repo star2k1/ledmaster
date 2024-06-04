@@ -1,26 +1,31 @@
 export function hexArrayToBitmap(hexArray) {
 	const bitmapArray = [];
+	try {
+		for (let i = 0; i < hexArray.length; i++) {
+			const row = hexArray[i];
+			for (let j = 0; j < row.length; j++) {
+				const hexColor = row[j];
+				// Extracting red, green, and blue components
+				const red = parseInt(hexColor.slice(1, 3), 16);
+				const green = parseInt(hexColor.slice(3, 5), 16);
+				const blue = parseInt(hexColor.slice(5, 7), 16);
 
-	for (let i = 0; i < hexArray.length; i++) {
-		const row = hexArray[i];
-		for (let j = 0; j < row.length; j++) {
-			const hexColor = row[j];
-			// Extracting red, green, and blue components
-			const red = parseInt(hexColor.slice(1, 3), 16);
-			const green = parseInt(hexColor.slice(3, 5), 16);
-			const blue = parseInt(hexColor.slice(5, 7), 16);
+				// Convert 24-bit RGB values to 16-bit RGB values
+				const red5 = (red >> 3) & 0x1F; // 5 bits
+				const green6 = (green >> 2) & 0x3F; // 6 bits
+				const blue5 = (blue >> 3) & 0x1F; // 5 bits
 
-			// Convert 24-bit RGB values to 16-bit RGB values
-			const red5 = (red >> 3) & 0x1F; // 5 bits
-			const green6 = (green >> 2) & 0x3F; // 6 bits
-			const blue5 = (blue >> 3) & 0x1F; // 5 bits
+				// Combine red, green, and blue components into a single 16-bit value
+				const colorValue = (red5 << 11) | (green6 << 5) | blue5;
 
-			// Combine red, green, and blue components into a single 16-bit value
-			const colorValue = (red5 << 11) | (green6 << 5) | blue5;
-
-			bitmapArray.push(colorValue);
+				bitmapArray.push(colorValue);
+			}
 		}
+	} catch (error) {
+		console.error('Error: ', error);
+		return [];
 	}
+	
 	return bitmapArray;
 }
 

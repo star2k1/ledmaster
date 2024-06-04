@@ -30,6 +30,9 @@
         "missing": "No animations currently created. Tap on the plus to create one!",
         "animation-sending": "Sending animation..."
     },
+    "my-visuals": {
+        "title": "My visuals"
+    },
     "new-design": {
         "empty-canvas": "Empty canvas",
         "empty-canvas-message": "An empty canvas cannot be saved"

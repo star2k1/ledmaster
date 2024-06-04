@@ -4,7 +4,6 @@ import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
 import
 {
-	SafeAreaView,
 	Text,
 	StyleSheet,
 	TouchableOpacity,
@@ -13,7 +12,6 @@ import
 } from 'react-native';
 import ColorPicker, { Preview, Panel3, BrightnessSlider } from 'reanimated-color-picker';
 import { useAppSelector } from '../state/store';
-import Animated from 'react-native-reanimated';
 
 const ColorPickerModalSmall = ({ visible, onClose, onSelectColor }) => {
 	const { t } = useTranslation();

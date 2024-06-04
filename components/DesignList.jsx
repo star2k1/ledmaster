@@ -16,7 +16,8 @@ export default function DesignList({ data }) {
 	const dispatch = useDispatch();
 	const bluetoothEnabled = useAppSelector(state => (state.ble.bluetoothEnabled));
 	const connectedDevice = useAppSelector(state => (state.ble.connectedDevice));
-	const listItemWidth = Dimensions.get('window').width / 2.05;
+	const portraitWidth = useAppSelector(state => (state.device.portraitWidth));
+	const listItemWidth = portraitWidth / 2.05;
 
 	const bitmapItem = ({ item }) => (
 		<TouchableOpacity onPress={() => sendPixels(item)}>
