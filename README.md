@@ -7,6 +7,7 @@ The system consists of two parts: a mobile app created for iOS using React Nativ
 
 The code for the mobile app can be found in "app" branch and code for the microcontroller in the "controller" branch.
 
+The project was created as a part of a Bachelor's work at Tallinn University of Technology.
 
 ## License
 
